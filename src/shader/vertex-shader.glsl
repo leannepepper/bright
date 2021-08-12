@@ -1,5 +1,11 @@
  // Uniforms 
 uniform float u_size;
+uniform float u_time;
+
+// Attributes
+attribute float a_scale;
+
+varying float v_time;
 
  void main()
         {
@@ -14,5 +20,11 @@ uniform float u_size;
             /**
              * Size
              */
-            gl_PointSize = u_size;
+            gl_PointSize = u_size * a_scale;
+            gl_PointSize *= (1.0 / - viewPosition.z);
+
+            /**
+             * Assignments
+             */
+            v_time = u_time;
         }

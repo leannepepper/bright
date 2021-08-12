@@ -46,9 +46,10 @@ let points = null
 
   
  geometry = new THREE.BufferGeometry();
- const positions = new Float32Array(parameters.count * 3);
  
- const colors = new Float32Array(parameters.count * 3) 
+ const positions = new Float32Array(parameters.count * 3);
+ const colors = new Float32Array(parameters.count * 3);
+ const scales = new Float32Array(parameters.count); 
 
  for(let i = 0; i < parameters.count; i++)
  {
@@ -78,10 +79,14 @@ let points = null
      colors[i3    ] = mixedColor.r
      colors[i3 + 1] = mixedColor.g
      colors[i3 + 2] = mixedColor.b
+
+     // Scale
+     scales[i] = Math.random()
  }
 
  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+ geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
 
      /**
      * Material
@@ -95,7 +100,8 @@ let points = null
         blending: THREE.AdditiveBlending,
         vertexColors: true,
         uniforms: {
-            u_size: {value: 8}
+            u_size: {value: 8 * renderer.getPixelRatio()},
+            u_time: { value: 0 },
         }
     })
 
@@ -106,7 +112,7 @@ let points = null
         scene.add(points)
  }
  
- generateGalaxy()
+ 
 
  gui.add(parameters, 'count').min(100).max(200000).step(100).onFinishChange(generateGalaxy)
  gui.add(parameters, 'size').min(0.001).max(0.1).step(0.001).onFinishChange(generateGalaxy)
@@ -164,6 +170,9 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+
+generateGalaxy()
+
 /**
  * Animate
  */
@@ -175,6 +184,9 @@ const tick = () =>
 
     // Update controls
     controls.update()
+
+    // Update material
+    material.uniforms.u_time.value = elapsedTime;
 
     // Render
     renderer.render(scene, camera)
