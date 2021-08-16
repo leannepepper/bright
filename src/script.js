@@ -2,8 +2,8 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
-import fragmentShader from "./shader/fragment-shader.glsl";
-import vertexShader from "./shader/vertex-shader.glsl";
+import fragmentShader from './shader/fragment-shader.glsl'
+import vertexShader from './shader/vertex-shader.glsl'
 
 /**
  * Base
@@ -18,11 +18,64 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Galaxy
+ * Fonts
+ */
+ const fontLoader = new THREE.FontLoader()
+
+ fontLoader.load(
+     '/fonts/helvetiker_regular.typeface.json',
+     (font) =>
+     {
+         const textGeometry = new THREE.TextGeometry(
+             'Leanne Werner',
+             {
+                font: font,
+                size: 0.6,
+                height: 0.03,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 15
+             }
+         )
+         const color = new THREE.Color('#23395d');
+         textGeometry.center()
+         const titleTextGeometry = new THREE.TextGeometry(
+            'creative coder',
+            {
+               font: font,
+               size: 0.2,
+               height: 0.02,
+               curveSegments: 12,
+               bevelEnabled: true,
+               bevelThickness: 0.03,
+               bevelSize: 0.002,
+               bevelOffset: 0,
+               bevelSegments: 15
+            }
+        )
+        titleTextGeometry.center();
+        titleTextGeometry.translate(
+           - (0 - 0.002) * 0.5, // Subtract bevel size
+           - (2.5 - 0.002) * 0.5, // Subtract bevel size
+           - (0) * 0.5  // Subtract bevel thickness
+        )
+         const textMaterial = new THREE.MeshBasicMaterial({ color: color })
+         const nameText = new THREE.Mesh(textGeometry, textMaterial)
+         const titleText = new THREE.Mesh(titleTextGeometry, textMaterial)
+         scene.add(nameText)
+         scene.add(titleText)
+     }
+ )
+
+/**
+ * Particles
  */
 const parameters = {}
-parameters.count = 100000
-parameters.size = 0.01
+parameters.count = 100
+parameters.size = 5.1
 parameters.radius = 5
 parameters.branches = 3
 parameters.spin = 1
@@ -31,130 +84,121 @@ parameters.randomnessPower = 3
 parameters.insideColor = '#b94371'
 parameters.outsideColor = '#5006aa'
 
-let geometry = null
-let material = null
-let points = null
 
- const generateGalaxy = () =>
- {
-    if(points !== null)
-    {
-        geometry.dispose()
-        material.dispose()
-        scene.remove(points)
-    }
 
+const geometry = new THREE.BufferGeometry()
+
+const positions = new Float32Array(parameters.count * 3)
+const colors = new Float32Array(parameters.count * 3)
+const scales = new Float32Array(parameters.count)
+
+for (let i = 0; i < parameters.count; i++) {
+    const i3 = i * 3
+
+    const x = (i / (parameters.count - 1) - 0.5) * 3;
+    const y = Math.sin(i / 10.5) * 0.5;
+    const z = 1;
+
+
+    positions[i3] = x;
+    positions[i3 + 1] = y;
+    positions[i3 + 2] = 1
+
+//   const radius = Math.random() * parameters.radius
+
+
+//   const colorInside = new THREE.Color(parameters.insideColor)
+//   const colorOutside = new THREE.Color(parameters.outsideColor)
+//   const mixedColor = colorInside.clone()
+//   mixedColor.lerp(colorOutside, radius / parameters.radius)
+
+//   colors[i3] = mixedColor.r
+//   colors[i3 + 1] = mixedColor.g
+//   colors[i3 + 2] = mixedColor.b
+
+//   // Scale
+//   scales[i] = 20;//Math.random()
+}
+
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+//geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+//geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
+
+/**
+ * Material
+ */
+const material = new THREE.ShaderMaterial({
+  vertexShader: vertexShader,
+  //fragmentShader: fragmentShader,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  vertexColors: true,
+  uniforms: {
+    u_size: { value: 10 },
+    u_time: { value: 0 },
+    u_mouse: { value: new THREE.Vector3() },
+    u_resolution: { value: new THREE.Vector2() },
+  }
+})
+
+/**
+ * Points
+ */
+const points = new THREE.Line(geometry, material)
+scene.add(points)
+scene.background = new THREE.Color("#000")//new THREE.Color("#D7EDFF")
+
+
+/**
+ * Mouse Move
+ */
+ function handleMouseMove(event) {
+    material.uniforms.u_mouse.value.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    material.uniforms.u_mouse.value.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+    material.uniforms.u_mouse.value.z = 1;
+  }
   
- geometry = new THREE.BufferGeometry();
- 
- const positions = new Float32Array(parameters.count * 3);
- const colors = new Float32Array(parameters.count * 3);
- const scales = new Float32Array(parameters.count); 
-
- for(let i = 0; i < parameters.count; i++)
- {
-    /**
-     * Geometry
-     */
-     const i3 = i * 3
-
-     const radius = Math.random() * parameters.radius
-
-    // const spinAngle = radius * parameters.spin
-     const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2
-
-     const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-     const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-     const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-
-     positions[i3    ] = Math.cos(branchAngle ) * radius + randomX
-     positions[i3 + 1] = randomY
-     positions[i3 + 2] = Math.sin(branchAngle ) * radius + randomZ
-
-     const colorInside = new THREE.Color(parameters.insideColor)
-     const colorOutside = new THREE.Color(parameters.outsideColor)
-     const mixedColor = colorInside.clone()
-     mixedColor.lerp(colorOutside, radius / parameters.radius)
-
-     colors[i3    ] = mixedColor.r
-     colors[i3 + 1] = mixedColor.g
-     colors[i3 + 2] = mixedColor.b
-
-     // Scale
-     scales[i] = Math.random()
- }
-
- geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
- geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
- geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
-
-     /**
-     * Material
-     */
-      material = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        //size: parameters.size,
-        //sizeAttenuation: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        vertexColors: true,
-        uniforms: {
-            u_size: {value: 8 * renderer.getPixelRatio()},
-            u_time: { value: 0 },
-        }
-    })
-
-    /**
-    * Points
-    */
-        points = new THREE.Points(geometry, material)
-        scene.add(points)
- }
- 
- 
-
- gui.add(parameters, 'count').min(100).max(200000).step(100).onFinishChange(generateGalaxy)
- gui.add(parameters, 'size').min(0.001).max(0.1).step(0.001).onFinishChange(generateGalaxy)
- gui.add(parameters, 'radius').min(0.01).max(20).step(0.01).onFinishChange(generateGalaxy)
- gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateGalaxy)
- gui.add(parameters, 'spin').min(- 5).max(5).step(0.001).onFinishChange(generateGalaxy)
- gui.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateGalaxy)
- gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.001).onFinishChange(generateGalaxy)
- gui.addColor(parameters, 'insideColor').onFinishChange(generateGalaxy)
-gui.addColor(parameters, 'outsideColor').onFinishChange(generateGalaxy)
+  window.addEventListener("mousemove", handleMouseMove);
 
 /**
  * Sizes
  */
 const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
+  width: window.innerWidth,
+  height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
+window.addEventListener('resize', () => {
+  // Update sizes
+  sizes.width = window.innerWidth
+  sizes.height = window.innerHeight
 
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
+  // Update camera
+  camera.aspect = sizes.width / sizes.height
+  camera.updateProjectionMatrix()
 
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+  //Update uniforms
+  material.uniforms.u_resolution.value.x = renderer.domElement.width;
+  material.uniforms.u_resolution.value.y = renderer.domElement.height;
 })
 
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 3
-camera.position.y = 3
-camera.position.z = 3
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.1,
+  100
+)
+//camera.position.x = 3
+//camera.position.y = 3
+camera.position.z = 5
 scene.add(camera)
 
 // Controls
@@ -165,34 +209,53 @@ controls.enableDamping = true
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+  canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-
-generateGalaxy()
+material.uniforms.u_resolution.value.x = renderer.domElement.width;
+material.uniforms.u_resolution.value.y = renderer.domElement.height;
 
 /**
  * Animate
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
-    const elapsedTime = clock.getElapsedTime()
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime()
 
-    // Update controls
-    controls.update()
+  // Update controls
+  controls.update()
 
-    // Update material
-    material.uniforms.u_time.value = elapsedTime;
+  // Update material
+  material.uniforms.u_time.value = elapsedTime
+  
+for (let i = 0; i < parameters.count; i++) {
+    const i3 = i * 3
+    if(i3 === 0){ 
+        positions[0] = material.uniforms.u_mouse.value.x;
+        positions[1] = material.uniforms.u_mouse.value.y;
+        positions[2] = material.uniforms.u_mouse.value.z;
+    } 
+    else {
+        const tempVec3 = new THREE.Vector3( positions[i3],  positions[i3 + 1],  positions[i3 + 2])
+        const tempLerp = material.uniforms.u_mouse.value.lerp(tempVec3, 0.08);
+        
+        positions[i3] = tempLerp.x;
+        positions[i3 + 1] = tempLerp.y;
+        positions[i3 + 2] = tempLerp.z;
+    }
+    
+}
+geometry.attributes.position.needsUpdate = true;
 
-    // Render
-    renderer.render(scene, camera)
 
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+  // Render
+  renderer.render(scene, camera)
+
+  // Call tick again on the next frame
+  window.requestAnimationFrame(tick)
 }
 
 tick()
