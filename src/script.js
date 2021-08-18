@@ -81,10 +81,10 @@ for (let i = 0; i < parameters.count; i++) {
 
   positions[i3] = x
   positions[i3 + 1] = y
-  positions[i3 + 2] = 1
+  positions[i3 + 2] = -1
 }
 
-line.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+//line.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
 /**
  * Mesh Line Material
@@ -102,22 +102,7 @@ const material = new MeshLineMaterial({
 const meshLine = new THREE.Mesh(line, material)
 scene.add(meshLine)
 
-/**
- * Mouse Move
- */
-let mouse = new THREE.Vector3()
-
-function handleMouseMove (event) {
-//   mouse.x = (event.clientX / window.innerWidth) 
-//   mouse.y = -(event.clientY / window.innerHeight)
-
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-  mouse.z = 1
-}
-
-window.addEventListener('mousemove', handleMouseMove)
+meshLine.raycast = MeshLineRaycast;
 
 /**
  * Sizes
@@ -145,6 +130,29 @@ window.addEventListener('resize', () => {
   //   material.uniforms.u_resolution.value.y = renderer.domElement.height
 })
 
+
+/**
+ * Mouse Move
+ */
+let mouse = new THREE.Vector3(0,0, 1);
+
+function handleMouseMove (event) {
+  mouse.x = (event.clientX / sizes.width) * 2 - 1
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1
+  mouse.z = 1;
+
+   var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+   vector.unproject( camera );
+   var dir = vector.sub( camera.position ).normalize();
+   var distance = - camera.position.z / dir.z;
+   var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+   
+   mouse = pos;
+
+}
+
+window.addEventListener('mousemove', handleMouseMove)
+
 /**
  * Camera
  */
@@ -155,12 +163,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.z = 5
+camera.position.z = 3
 scene.add(camera)
-
-// Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
 
 /**
  * Renderer
@@ -170,6 +174,10 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
 
 /**
  * Animate
@@ -182,7 +190,7 @@ const tick = () => {
   // Update controls
   controls.update()
 
-  // Update material
+  // Update 
   //material.uniforms.u_time.value = elapsedTime
 
   for (let i = 0; i < parameters.count; i++) {
@@ -193,6 +201,9 @@ const tick = () => {
       positions[0] = mouse.x
       positions[1] = mouse.y
       positions[2] = mouse.z
+
+    //   console.log({mouse})
+    //   console.log(positions[0])
     } else {
       const tempVec3 = new THREE.Vector3(
         positions[i3],
@@ -204,18 +215,19 @@ const tick = () => {
         positions[prev + 1],
         positions[prev + 2]
       )
-      //const tempLerp = tempVec3.lerp(tempPrevVec3, 0.9)
-      const tempLerp = tempPrevVec3.lerp(tempVec3, 0.1)
 
+      const tempLerp = tempVec3.lerp(tempPrevVec3, 0.9)      
+      
       positions[i3] = tempLerp.x
       positions[i3 + 1] = tempLerp.y
-      positions[i3 + 2] = tempLerp.z
+      positions[i3 + 2] = mouse.z
     }
   }
 
-  line.attributes.position.needsUpdate = true
+
+  //line.attributes.position.needsUpdate = true
   line.setPoints(positions)
-  
+
   // Render
   renderer.render(scene, camera)
 
