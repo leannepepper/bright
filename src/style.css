@@ -8,12 +8,62 @@ html,
 body
 {
     overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-.webgl
-{
+a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.webgl {
     position: fixed;
     top: 0;
     left: 0;
     outline: none;
+}
+
+.nav {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+    z-index: 100;
+    width: 98vw;
+    padding: 20px;
+}
+
+ul {
+    list-style: none;
+    display: flex;
+    font-size: 18px;
+    margin-right: 20px;
+    align-items: center;
+}
+
+li {
+    padding: 0px 10px;
+}
+
+button {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+}
+
+.btn-toggle {
+    border: 1px solid lightgray;
+    border-radius: 5px;
+}
+
+.left-border {
+    border-left: 1px solid lightgray;
+}
+
+.trail-type {
+    width: 20px;
+    display: flex;
+    justify-content: center;
 }

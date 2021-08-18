@@ -6,6 +6,7 @@ attribute float a_scale;
 uniform vec2 u_resolution;
 uniform float u_size;
 uniform float u_time;
+uniform mat4 u_projection;
 
 varying float v_time;
 varying vec3 v_color;
@@ -21,21 +22,11 @@ vec4 getPosition() {
     normal *= 0.1;
     
     vec4 current = vec4(position, 1);
-     current.xy -= normal * 1.0;
+    current.xy -= normal * side;
     return current;
-    
 }
 
 void main() {
-    gl_Position = getPosition();
-    vec4 modelPosition = modelMatrix * vec4((position.x),(position.y),(position.z), 1.0);
-    vec4 viewPosition = viewMatrix * modelPosition;
-    vec4 projectedPosition = projectionMatrix * viewPosition;
-
-   // gl_Position = projectedPosition;
+    gl_Position = vec4(position, 1);
     v_color = color;
-    
-  //  gl_PointSize = u_size * a_scale;
-   // gl_PointSize *= (1.0 / - viewPosition.z);
-    //gl_Position = vec4( position, 1.0 );
 }
