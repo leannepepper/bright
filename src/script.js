@@ -6,6 +6,48 @@ import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'meshline'
 
+//State
+const state = {
+  isMouseTrailLine: true
+}
+
+//Buttons
+const btn1 = document.querySelector('#mouseLineTrail')
+const btn2 = document.querySelector('#mouseCircleTrail')
+const toggleDiv = document.querySelector('#mask')
+
+function toggleActivity(){
+     toggleDiv.style.right = 'auto';
+    
+    if(state.isMouseTrailLine) {
+        toggleDiv.style.animation = "revealLeft 0.2s forwards";
+    } else {        
+        toggleDiv.style.right = '41px';
+        toggleDiv.style.animation = "revealRight 0.2s forwards";
+    }
+    
+    
+}
+
+function changeMouseTrail () {
+  state.isMouseTrailLine === true
+    ? (state.isMouseTrailLine = false)
+    : (state.isMouseTrailLine = true)
+  
+  btn1.disabled = state.isMouseTrailLine ? true : false
+  btn2.disabled = !state.isMouseTrailLine ? true : false
+
+  toggleActivity()
+}
+
+btn1.addEventListener('click', changeMouseTrail)
+btn2.addEventListener('click', changeMouseTrail)
+
+btn1.disabled = state.isMouseTrailLine ? true : false
+btn2.disabled = !state.isMouseTrailLine ? true : false
+
+toggleActivity()
+
 /**
  * Base
  */
@@ -88,7 +130,6 @@ function setPosition (positionArray) {
   return positionArray
 }
 
-
 /**
  * Mesh Line Material
  */
@@ -99,7 +140,11 @@ const colors = ['#17993a', '#2c92d1', '#ed4224', '#dd02f5', '#0a02f5']
 
 for (let i = 0; i < colors.length; i++) {
   const alpha = Math.abs(random(-1, 1) * 0.02)
-  const offset = new THREE.Vector3(Math.abs(random(-1, 1) * 0.2), Math.abs(random(-1, 1) * 0.2), Math.abs(random(-1, 1) * 0.2))
+  const offset = new THREE.Vector3(
+    Math.abs(random(-1, 1) * 0.2),
+    Math.abs(random(-1, 1) * 0.2),
+    Math.abs(random(-1, 1) * 0.2)
+  )
   const line = new MeshLine()
   const positions = setPosition(new Float32Array(parameters.count * 3))
   line.setPoints(positions)
@@ -205,17 +250,14 @@ const tick = () => {
   // Update
   //material.uniforms.u_time.value = elapsedTime
   lines.forEach(function (line) {
-    
     for (let i = 0; i < parameters.count; i++) {
       const i3 = i * 3
       const prev = (i - 1) * 3
 
       if (i3 === 0) {
-          
-        line.positions[0] = mouse.x + line.mouseOffSet.x;
-        line.positions[1] = mouse.y + line.mouseOffSet.y;
-        line.positions[2] = mouse.z 
-
+        line.positions[0] = mouse.x + line.mouseOffSet.x
+        line.positions[1] = mouse.y + line.mouseOffSet.y
+        line.positions[2] = mouse.z
       } else {
         const tempVec3 = new THREE.Vector3(
           line.positions[i3],
