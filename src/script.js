@@ -15,9 +15,15 @@ import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'meshline'
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
+//Helper
+function random (a, b) {
+  const alpha = Math.random()
+  return a * (1.0 - alpha) + b * alpha
+}
+
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x23395d)
+//scene.background = new THREE.Color(0xFF69B4)
 
 /**
  * Fonts
@@ -28,7 +34,7 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
   const textGeometry = new THREE.TextGeometry('Leanne Werner', {
     font: font,
     size: 0.6,
-    height: 0.03,
+    height: 0.07,
     curveSegments: 12,
     bevelEnabled: true,
     bevelThickness: 0.03,
@@ -63,46 +69,52 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
 })
 
 /**
- * Particles
+ * Positions
  */
 const parameters = {}
 parameters.count = 150
 
-const line = new MeshLine()
+function setPosition (positionArray) {
+  for (let i = 0; i < parameters.count; i++) {
+    const i3 = i * 3
 
-const positions = new Float32Array(parameters.count * 3)
-const colors = new Float32Array(parameters.count * 3)
+    const x = (i / (parameters.count - 1) - 0.5) * 3
+    const y = Math.sin(i / 10.5) * 0.5
 
-for (let i = 0; i < parameters.count; i++) {
-  const i3 = i * 3
-
-  const x = (i / (parameters.count - 1) - 0.5) * 3
-  const y = Math.sin(i / 10.5) * 0.5
-
-  positions[i3] = x
-  positions[i3 + 1] = y
-  positions[i3 + 2] = -1
+    positionArray[i3] = x
+    positionArray[i3 + 1] = y
+    positionArray[i3 + 2] = -1
+  }
+  return positionArray
 }
 
-//line.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
 /**
  * Mesh Line Material
  */
 const resolution = new THREE.Vector2(canvas.width, canvas.height)
+const lines = []
 
-line.setPoints(positions)
-const material = new MeshLineMaterial({
-  color: '#b94371',
-  resolution,
-  sizeAttenuation: 0,
-  lineWidth: 2.0
-})
+const colors = ['#17993a', '#2c92d1', '#ed4224', '#dd02f5', '#0a02f5']
 
-const meshLine = new THREE.Mesh(line, material)
-scene.add(meshLine)
+for (let i = 0; i < colors.length; i++) {
+  const alpha = Math.abs(random(-1, 1) * 0.02)
+  const offset = new THREE.Vector3(Math.abs(random(-1, 1) * 0.2), Math.abs(random(-1, 1) * 0.2), Math.abs(random(-1, 1) * 0.2))
+  const line = new MeshLine()
+  const positions = setPosition(new Float32Array(parameters.count * 3))
+  line.setPoints(positions)
 
-meshLine.raycast = MeshLineRaycast;
+  const material = new MeshLineMaterial({
+    color: colors[i],
+    resolution,
+    sizeAttenuation: 0,
+    lineWidth: Math.floor(Math.random() * 10)
+  })
+  const meshLine = new THREE.Mesh(line, material)
+  lines.push({ line: line, positions: positions, mouseOffSet: offset })
+
+  scene.add(meshLine)
+}
 
 /**
  * Sizes
@@ -130,25 +142,23 @@ window.addEventListener('resize', () => {
   //   material.uniforms.u_resolution.value.y = renderer.domElement.height
 })
 
-
 /**
  * Mouse Move
  */
-let mouse = new THREE.Vector3(0,0, 1);
+let mouse = new THREE.Vector3(0, 0, 1)
 
 function handleMouseMove (event) {
   mouse.x = (event.clientX / sizes.width) * 2 - 1
   mouse.y = -(event.clientY / sizes.height) * 2 + 1
-  mouse.z = 1;
+  mouse.z = 1
 
-   var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-   vector.unproject( camera );
-   var dir = vector.sub( camera.position ).normalize();
-   var distance = - camera.position.z / dir.z;
-   var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-   
-   mouse = pos;
+  var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5)
+  vector.unproject(camera)
+  var dir = vector.sub(camera.position).normalize()
+  var distance = -camera.position.z / dir.z
+  var pos = camera.position.clone().add(dir.multiplyScalar(distance))
 
+  mouse = pos
 }
 
 window.addEventListener('mousemove', handleMouseMove)
@@ -163,7 +173,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.z = 3
+
+camera.position.z = 5
 scene.add(camera)
 
 /**
@@ -182,6 +193,7 @@ controls.enableDamping = true
 /**
  * Animate
  */
+
 const clock = new THREE.Clock()
 
 const tick = () => {
@@ -190,47 +202,45 @@ const tick = () => {
   // Update controls
   controls.update()
 
-  // Update 
+  // Update
   //material.uniforms.u_time.value = elapsedTime
+  lines.forEach(function (line) {
+    
+    for (let i = 0; i < parameters.count; i++) {
+      const i3 = i * 3
+      const prev = (i - 1) * 3
 
-  for (let i = 0; i < parameters.count; i++) {
-    const i3 = i * 3
-    const prev = (i - 1) * 3
+      if (i3 === 0) {
+          
+        line.positions[0] = mouse.x + line.mouseOffSet.x;
+        line.positions[1] = mouse.y + line.mouseOffSet.y;
+        line.positions[2] = mouse.z 
 
-    if (i3 === 0) {
-      positions[0] = mouse.x
-      positions[1] = mouse.y
-      positions[2] = mouse.z
+      } else {
+        const tempVec3 = new THREE.Vector3(
+          line.positions[i3],
+          line.positions[i3 + 1],
+          line.positions[i3 + 2]
+        )
+        const tempPrevVec3 = new THREE.Vector3(
+          line.positions[prev],
+          line.positions[prev + 1],
+          line.positions[prev + 2]
+        )
 
-    //   console.log({mouse})
-    //   console.log(positions[0])
-    } else {
-      const tempVec3 = new THREE.Vector3(
-        positions[i3],
-        positions[i3 + 1],
-        positions[i3 + 2]
-      )
-      const tempPrevVec3 = new THREE.Vector3(
-        positions[prev],
-        positions[prev + 1],
-        positions[prev + 2]
-      )
+        const tempLerp = tempVec3.lerp(tempPrevVec3, 0.9)
 
-      const tempLerp = tempVec3.lerp(tempPrevVec3, 0.9)      
-      
-      positions[i3] = tempLerp.x
-      positions[i3 + 1] = tempLerp.y
-      positions[i3 + 2] = mouse.z
+        line.positions[i3] = tempLerp.x
+        line.positions[i3 + 1] = tempLerp.y
+        line.positions[i3 + 2] = mouse.z
+      }
     }
-  }
 
-
-  //line.attributes.position.needsUpdate = true
-  line.setPoints(positions)
-
+    //line.attributes.position.needsUpdate = true
+    line.line.setPoints(line.positions, p => 1 - p)
+  })
   // Render
   renderer.render(scene, camera)
-
   // Call tick again on the next frame
   window.requestAnimationFrame(tick)
 }
