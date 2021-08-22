@@ -6,6 +6,10 @@ import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'meshline'
 
+/**
+ * UI
+ */
+
 //State
 const state = {
   isMouseTrailLine: true
@@ -16,28 +20,27 @@ const btn1 = document.querySelector('#mouseLineTrail')
 const btn2 = document.querySelector('#mouseCircleTrail')
 const toggleDiv = document.querySelector('#mask')
 
-function toggleActivity(){
-     toggleDiv.style.right = 'auto';
-    
-    if(state.isMouseTrailLine) {
-        toggleDiv.style.animation = "revealLeft 0.2s forwards";
-    } else {        
-        toggleDiv.style.right = '41px';
-        toggleDiv.style.animation = "revealRight 0.2s forwards";
-    }
-    
-    
+function toggleActivity () {
+  toggleDiv.style.right = 'auto'
+
+  if (state.isMouseTrailLine) {
+    toggleDiv.style.animation = 'revealLeft 0.2s forwards'
+  } else {
+    toggleDiv.style.right = '41px'
+    toggleDiv.style.animation = 'revealRight 0.2s forwards'
+  }
 }
 
 function changeMouseTrail () {
   state.isMouseTrailLine === true
     ? (state.isMouseTrailLine = false)
     : (state.isMouseTrailLine = true)
-  
+
   btn1.disabled = state.isMouseTrailLine ? true : false
   btn2.disabled = !state.isMouseTrailLine ? true : false
 
   toggleActivity()
+  setMouseTrail()
 }
 
 btn1.addEventListener('click', changeMouseTrail)
@@ -47,12 +50,6 @@ btn1.disabled = state.isMouseTrailLine ? true : false
 btn2.disabled = !state.isMouseTrailLine ? true : false
 
 toggleActivity()
-
-/**
- * Base
- */
-// Debug
-//const gui = new dat.GUI()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -134,32 +131,74 @@ function setPosition (positionArray) {
  * Mesh Line Material
  */
 const resolution = new THREE.Vector2(canvas.width, canvas.height)
-const lines = []
-
 const colors = ['#17993a', '#2c92d1', '#ed4224', '#dd02f5', '#0a02f5']
+let lines = []
 
-for (let i = 0; i < colors.length; i++) {
-  const alpha = Math.abs(random(-1, 1) * 0.02)
-  const offset = new THREE.Vector3(
-    Math.abs(random(-1, 1) * 0.2),
-    Math.abs(random(-1, 1) * 0.2),
-    Math.abs(random(-1, 1) * 0.2)
-  )
-  const line = new MeshLine()
-  const positions = setPosition(new Float32Array(parameters.count * 3))
-  line.setPoints(positions)
+function setMouseTrail () {
+  lines = [];
 
-  const material = new MeshLineMaterial({
-    color: colors[i],
-    resolution,
-    sizeAttenuation: 0,
-    lineWidth: Math.floor(Math.random() * 10)
-  })
-  const meshLine = new THREE.Mesh(line, material)
-  lines.push({ line: line, positions: positions, mouseOffSet: offset })
+  //Remove existing mouse trail
 
-  scene.add(meshLine)
+  for (let i = 0; i < scene.children.length; i++) {
+    if (
+      scene.children[i].geometry &&
+      scene.children[i].geometry.type === 'MeshLine'
+    ) {
+      scene.children.splice(i, 1)
+      i--;
+    }
+  }
+
+  if (state.isMouseTrailLine) {
+    for (let i = 0; i < colors.length; i++) {
+      const alpha = Math.abs(random(-1, 1) * 0.02)
+      const offset = new THREE.Vector3(
+        Math.abs(random(-1, 1) * 0.2),
+        Math.abs(random(-1, 1) * 0.2),
+        Math.abs(random(-1, 1) * 0.2)
+      )
+      const line = new MeshLine()
+      const positions = setPosition(new Float32Array(parameters.count * 3))
+      line.setPoints(positions)
+
+      const material = new MeshLineMaterial({
+        color: colors[i],
+        resolution,
+        sizeAttenuation: 0,
+        lineWidth: Math.floor(Math.random() * 10)
+      })
+      const meshLine = new THREE.Mesh(line, material)
+      lines.push({ line: line, positions: positions, mouseOffSet: offset })
+
+      scene.add(meshLine)
+    }
+  } else {
+    for (let i = 0; i < colors.length - 4; i++) {
+      const alpha = Math.abs(random(-1, 1) * 0.02)
+      const offset = new THREE.Vector3(
+        Math.abs(random(-1, 1) * 0.2),
+        Math.abs(random(-1, 1) * 0.2),
+        Math.abs(random(-1, 1) * 0.2)
+      )
+      const line = new MeshLine()
+      const positions = setPosition(new Float32Array(parameters.count * 3))
+      line.setPoints(positions)
+
+      const material = new MeshLineMaterial({
+        color: colors[i],
+        resolution,
+        sizeAttenuation: 0,
+        lineWidth: Math.floor(Math.random() * 10)
+      })
+      const meshLine = new THREE.Mesh(line, material)
+      lines.push({ line: line, positions: positions, mouseOffSet: offset })
+
+      scene.add(meshLine)
+    }
+  }
 }
+
+setMouseTrail()
 
 /**
  * Sizes
