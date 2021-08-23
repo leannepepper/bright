@@ -62,7 +62,8 @@ function random (a, b) {
 
 // Scene
 const scene = new THREE.Scene()
-//scene.background = new THREE.Color(0xFF69B4)
+scene.background = new THREE.Color(0x558786)
+// scene.background = new THREE.Color(0xeda2d4)
 
 /**
  * Fonts
@@ -81,11 +82,12 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
     bevelOffset: 0,
     bevelSegments: 15
   })
-  const color = new THREE.Color('#add8e6')
+  //   const color = new THREE.Color('#d32f8f')
+  const color = new THREE.Color('#bed6d9')
   textGeometry.center()
-  const titleTextGeometry = new THREE.TextGeometry('creative coder', {
+  const titleTextGeometry = new THREE.TextGeometry('developer', {
     font: font,
-    size: 0.3,
+    size: 0.2,
     height: 0.02,
     curveSegments: 12,
     bevelEnabled: true,
@@ -111,7 +113,15 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
  * Positions
  */
 const parameters = {}
-parameters.count = 150
+parameters.count = 100
+parameters.size = 0.1
+parameters.radius = 5
+parameters.branches = 3
+parameters.spin = 1
+parameters.randomness = 0.58
+parameters.randomnessPower = 3
+parameters.insideColor = '#b94371'
+parameters.outsideColor = '#5006aa'
 
 function setPosition (positionArray) {
   for (let i = 0; i < parameters.count; i++) {
@@ -131,70 +141,105 @@ function setPosition (positionArray) {
  * Mesh Line Material
  */
 const resolution = new THREE.Vector2(canvas.width, canvas.height)
-const colors = ['#17993a', '#2c92d1', '#ed4224', '#dd02f5', '#0a02f5']
+const colors = ['#00E400', '#FF80FF']
 let lines = []
+let material = null
+let geometry = null
+let meshLine = null
+let points = null
 
 function setMouseTrail () {
-  lines = [];
+  lines = []
 
   //Remove existing mouse trail
-
   for (let i = 0; i < scene.children.length; i++) {
     if (
-      scene.children[i].geometry &&
-      scene.children[i].geometry.type === 'MeshLine'
+      (scene.children[i].geometry &&
+        scene.children[i].geometry.type === 'MeshLine') ||
+      scene.children[i].type === 'Points'
     ) {
-      scene.children.splice(i, 1)
-      i--;
+      if (material !== null) {
+        material.dispose()
+      }
+      if (geometry !== null) {
+        geometry.dispose()
+      }
+      scene.remove(scene.children[i])
+      i--
     }
   }
 
   if (state.isMouseTrailLine) {
+    //Rainbow Lines
+    const sizes = [7, 4]
     for (let i = 0; i < colors.length; i++) {
-      const alpha = Math.abs(random(-1, 1) * 0.02)
-      const offset = new THREE.Vector3(
-        Math.abs(random(-1, 1) * 0.2),
-        Math.abs(random(-1, 1) * 0.2),
-        Math.abs(random(-1, 1) * 0.2)
-      )
       const line = new MeshLine()
       const positions = setPosition(new Float32Array(parameters.count * 3))
       line.setPoints(positions)
 
-      const material = new MeshLineMaterial({
+      material = new MeshLineMaterial({
         color: colors[i],
         resolution,
         sizeAttenuation: 0,
-        lineWidth: Math.floor(Math.random() * 10)
+        lineWidth: sizes[i]
       })
-      const meshLine = new THREE.Mesh(line, material)
-      lines.push({ line: line, positions: positions, mouseOffSet: offset })
+      meshLine = new THREE.Mesh(line, material)
+      lines.push({ line: line, positions: positions })
 
       scene.add(meshLine)
     }
   } else {
-    for (let i = 0; i < colors.length - 4; i++) {
-      const alpha = Math.abs(random(-1, 1) * 0.02)
-      const offset = new THREE.Vector3(
-        Math.abs(random(-1, 1) * 0.2),
-        Math.abs(random(-1, 1) * 0.2),
-        Math.abs(random(-1, 1) * 0.2)
-      )
-      const line = new MeshLine()
-      const positions = setPosition(new Float32Array(parameters.count * 3))
-      line.setPoints(positions)
+    // Particles
 
-      const material = new MeshLineMaterial({
-        color: colors[i],
-        resolution,
-        sizeAttenuation: 0,
-        lineWidth: Math.floor(Math.random() * 10)
-      })
-      const meshLine = new THREE.Mesh(line, material)
-      lines.push({ line: line, positions: positions, mouseOffSet: offset })
+    geometry = new THREE.BufferGeometry()
+    const colors = new Float32Array(parameters.count * 3)
+    const scales = new Float32Array(parameters.count)
 
-      scene.add(meshLine)
+    for (let i = 0; i < parameters.count; i++) {
+      const i3 = i * 3
+
+      const radius = Math.random() * parameters.radius
+
+      const colorInside = new THREE.Color(parameters.insideColor)
+      const colorOutside = new THREE.Color(parameters.outsideColor)
+      const mixedColor = colorInside.clone()
+      mixedColor.lerp(colorOutside, radius / parameters.radius)
+
+      colors[i3] = mixedColor.r
+      colors[i3 + 1] = mixedColor.g
+      colors[i3 + 2] = mixedColor.b
+
+      scales[i] = Math.random()
     }
+
+    material = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexColors: true,
+      uniforms: {
+        u_size: { value: 1000 * renderer.getPixelRatio() },
+        u_time: { value: 0 },
+        u_mouse: { value: new THREE.Vector2() }
+      }
+    })
+
+    const positions = setPosition(new Float32Array(parameters.count * 3))
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+    geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
+
+    const offset = new THREE.Vector3(
+      Math.abs(random(-1, 1) * 0.2),
+      Math.abs(random(-1, 1) * 0.2),
+      Math.abs(random(-1, 1) * 0.2)
+    )
+
+    lines.push({ line: geometry, positions: positions })
+    points = new THREE.Points(geometry, material)
+
+    scene.add(points)
   }
 }
 
@@ -220,10 +265,6 @@ window.addEventListener('resize', () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-  //Update uniforms
-  //   material.uniforms.u_resolution.value.x = renderer.domElement.width
-  //   material.uniforms.u_resolution.value.y = renderer.domElement.height
 })
 
 /**
@@ -235,6 +276,11 @@ function handleMouseMove (event) {
   mouse.x = (event.clientX / sizes.width) * 2 - 1
   mouse.y = -(event.clientY / sizes.height) * 2 + 1
   mouse.z = 1
+
+  if (material.type === 'ShaderMaterial') {
+    material.uniforms.u_mouse.value.x = event.clientX * 0.001
+    material.uniforms.u_mouse.value.y = event.clientY * 0.001
+  }
 
   var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5)
   vector.unproject(camera)
@@ -286,16 +332,14 @@ const tick = () => {
   // Update controls
   controls.update()
 
-  // Update
-  //material.uniforms.u_time.value = elapsedTime
   lines.forEach(function (line) {
     for (let i = 0; i < parameters.count; i++) {
       const i3 = i * 3
       const prev = (i - 1) * 3
 
       if (i3 === 0) {
-        line.positions[0] = mouse.x + line.mouseOffSet.x
-        line.positions[1] = mouse.y + line.mouseOffSet.y
+        line.positions[0] = mouse.x
+        line.positions[1] = mouse.y + 0.05
         line.positions[2] = mouse.z
       } else {
         const tempVec3 = new THREE.Vector3(
@@ -317,8 +361,14 @@ const tick = () => {
       }
     }
 
-    //line.attributes.position.needsUpdate = true
-    line.line.setPoints(line.positions, p => 1 - p)
+    if (line.line.setPoints) {
+      line.line.setPoints(line.positions, p => 1 - p)
+    } else {
+      line.line.attributes.position.needsUpdate = true
+
+      // Update material
+      material.uniforms.u_time.value = elapsedTime
+    }
   })
   // Render
   renderer.render(scene, camera)
