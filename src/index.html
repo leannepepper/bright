@@ -8,16 +8,44 @@
   <body>
     <div class="nav">
       <ul>
-        <li><a>About</a></li>
-        <li><a>Work</a></li>
+        <li><a href="#about-me">About</a></li>
+        <li><a href="#work">Work</a></li>
       </ul>
 
       <ul class="btn-toggle">
         <div id="mask"></div>
         <li class="trail-type"><button id="mouseLineTrail">&#9761;</button></li>
-        <li class="trail-type left-border"><button id="mouseCircleTrail">&#9737;</button></li>
+        <li class="trail-type left-border">
+          <button id="mouseCircleTrail">&#9737;</button>
+        </li>
       </ul>
     </div>
     <canvas class="webgl"></canvas>
+
+    <div id="about-me">
+      <div class="avatar-box"><img src="/static/avatar-photo.jpeg" width=280 /></div>
+
+      <div class="about-me-description">
+        <h2>Hello! My name is Leanne, <br/> I'm a <span class='creative-coder'>creative developer</span></h2>
+        <br />
+        <p>
+          My name is Leanne Werner and I'm currently living and working is San
+          Diego, California. As a developer I have special interest in 2D and 3D
+          graphics and building tools that help make graphics easier to create.
+          I have a BA in Behavioral Neuroscience and have recently gained an
+          interest in design and writting GLSL shaders.
+        </p>
+      </div>
+      
+    </div>
+    <canvas class="about-shader"></canvas>
+
+    <div id="work">
+      <h1>Work</h1> <br/>
+      <h3>Open source</h3>
+      <h3>Writting</h3>
+      <h3>Social</h3>
+      
+    </div>
   </body>
 </html>

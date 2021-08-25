@@ -5,10 +5,12 @@ import * as dat from 'dat.gui'
 import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'meshline'
+import aboutMe from './about-me';
 
 /**
  * UI
  */
+
 
 //State
 const state = {
@@ -53,6 +55,7 @@ toggleActivity()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
+
 
 //Helper
 function random (a, b) {
@@ -113,21 +116,16 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
  * Positions
  */
 const parameters = {}
-parameters.count = 100
-parameters.size = 0.1
+parameters.count = 150
 parameters.radius = 5
-parameters.branches = 3
-parameters.spin = 1
-parameters.randomness = 0.58
-parameters.randomnessPower = 3
-parameters.insideColor = '#b94371'
-parameters.outsideColor = '#5006aa'
+parameters.insideColor = '#9F2B68'
+parameters.outsideColor = '#BF40BF'
 
-function setPosition (positionArray) {
-  for (let i = 0; i < parameters.count; i++) {
+export function setPosition (positionArray, count) {
+  for (let i = 0; i < count; i++) {
     const i3 = i * 3
 
-    const x = (i / (parameters.count - 1) - 0.5) * 3
+    const x = (i / (count - 1) - 0.5) * 3
     const y = Math.sin(i / 10.5) * 0.5
 
     positionArray[i3] = x
@@ -174,7 +172,7 @@ function setMouseTrail () {
     const sizes = [7, 4]
     for (let i = 0; i < colors.length; i++) {
       const line = new MeshLine()
-      const positions = setPosition(new Float32Array(parameters.count * 3))
+      const positions = setPosition(new Float32Array(parameters.count * 3), parameters.count)
       line.setPoints(positions)
 
       material = new MeshLineMaterial({
@@ -225,7 +223,7 @@ function setMouseTrail () {
       }
     })
 
-    const positions = setPosition(new Float32Array(parameters.count * 3))
+    const positions = setPosition(new Float32Array(parameters.count * 3), parameters.count)
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
@@ -364,10 +362,7 @@ const tick = () => {
     if (line.line.setPoints) {
       line.line.setPoints(line.positions, p => 1 - p)
     } else {
-      line.line.attributes.position.needsUpdate = true
-
-      // Update material
-      material.uniforms.u_time.value = elapsedTime
+      line.line.attributes.position.needsUpdate = true     
     }
   })
   // Render
@@ -377,3 +372,6 @@ const tick = () => {
 }
 
 tick()
+
+// Run about me shader
+aboutMe()
