@@ -9,6 +9,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+canvas {
+  display: block;
+}
+
 h2 {
   color: #215a59;
   font-size: 38px;
@@ -36,20 +40,20 @@ a:hover {
 }
 
 .about-shader {
-  height: 60vh !important;
-  width: 100vw;
+  height: 70vh !important;
+  width: 70% !important;
+  margin: auto;
+  border-radius: 30px;
+}
+
+.about-me-container {
+  background-color: #558786;
 }
 
 #about-me {
-  /* min-height: 500px;
-  height: 60vh;
-  background-color: #fff;
-  display: grid;
-  grid-template-columns: 2fr 1fr; */
   position: absolute;
   margin: 30px;
   left: 15%;
-  /* padding: 30px 0px; */
   display: flex;
   justify-content: space-around;
 }
@@ -73,6 +77,7 @@ a:hover {
   left: 73%;
   bottom: 0px;
   width: 550px;
+  border-radius: 30px;
 }
 
 img {
@@ -87,8 +92,9 @@ img {
 }
 
 #work {
-  height: 40vh;
+  height: 100%;
   background-color: #558786;
+  padding-bottom: 220px;
 }
 
 .nav {
@@ -143,6 +149,37 @@ button {
   position: absolute;
 }
 
+#work h1 {
+  text-align: center;
+  padding: 220px 0px 100px;
+  color: #fff;
+  font-size: 38px;
+  text-shadow: 1px 0px 4px #215a59;
+}
+
+#work .work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin: 0px;
+  text-align: center;
+  grid-template-rows: 1fr 1fr;
+}
+
+#work div h3 {
+  font-weight: 400;
+  font-size: 24px;
+  color: #bed7d9;
+  text-shadow: 1px 0px 4px #215a59;
+}
+
+.m-b-md {
+  margin-bottom: 20px;
+}
+
+.m-r-sm {
+  margin-right: 10px;
+}
+
 @keyframes revealLeft {
   from {
     clip-path: inset(0 0 0 100%);
@@ -172,12 +209,20 @@ button {
 
   #about-me {
     left: auto;
+    position: relative;
+    margin: 0px;
   }
 
   .about-me-description {
-    position: relative;
-    left: 0px;
-    bottom: 0px;
+    margin: auto;
+    left: auto;
+    bottom: auto;
     width: auto;
+    border-radius: 0px;
+    position: relative;
+  }
+
+  .about-shader {
+    display: none;
   }
 }

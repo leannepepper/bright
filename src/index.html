@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+
     <title>Portfolio</title>
   </head>
   <body>
@@ -21,31 +26,51 @@
       </ul>
     </div>
     <canvas class="webgl"></canvas>
+    <div class="about-me-container">
+      <div id="about-me">
+        <div class="avatar-box">
+          <img src="/static/avatar-photo.jpeg" width="280" />
+        </div>
 
-    <div id="about-me">
-      <div class="avatar-box"><img src="/static/avatar-photo.jpeg" width=280 /></div>
-
-      <div class="about-me-description">
-        <h2>Hello! My name is Leanne, <br/> I'm a <span class='creative-coder'>creative developer</span></h2>
-        <br />
-        <p>
-          My name is Leanne Werner and I'm currently living and working is San
-          Diego, California. As a developer I have special interest in 2D and 3D
-          graphics and building tools that help make graphics easier to create.
-          I have a BA in Behavioral Neuroscience and have recently gained an
-          interest in design and writting GLSL shaders.
-        </p>
+        <div class="about-me-description">
+          <h2>
+            Hello! My name is Leanne, <br />
+            I'm a <span class="creative-coder">creative developer</span>
+          </h2>
+          <br />
+          <p>
+            My name is Leanne Werner and I'm currently living and working is San
+            Diego, California. As a developer I have special interest in 2D and
+            3D graphics and building tools that help make graphics easier to
+            create. I have a BA in Behavioral Neuroscience and have recently
+            gained an interest in design and writting GLSL shaders.
+          </p>
+        </div>
       </div>
-      
+      <canvas class="about-shader"></canvas>
     </div>
-    <canvas class="about-shader"></canvas>
-
     <div id="work">
-      <h1>Work</h1> <br/>
-      <h3>Open source</h3>
-      <h3>Writting</h3>
-      <h3>Social</h3>
-      
+      <h1>Work</h1>
+      <div class="work-grid">
+        <h3>Open Source</h3>
+        <h3>Writtings</h3>
+        <h3>Latest</h3>
+        <h3>Social</h3>
+
+        <a>Ayon</a>
+        <span>
+          <div class="m-b-md"><a>Mouse Trails in Three.js</a></div>
+          <div class="m-b-md"><a>Float32Arrays</a></div>
+        </span>
+
+        <a>3D Quick Measure</a>
+        <span>
+          <a class="m-r-sm"
+            ><i class="fa fa-github-square" aria-hidden="true"></i>
+          </a>
+          <a><i class="fa fa-linkedin-square" aria-hidden="true"></i> </a>
+        </span>
+      </div>
     </div>
   </body>
 </html>
