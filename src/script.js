@@ -1,8 +1,8 @@
 import './style.css'
-import * as THREE from 'three'
+import * as THREE from '../node_modules/three/build/three.module.js'
 import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
-import { MeshLine, MeshLineMaterial } from 'meshline'
+import { MeshLine, MeshLineMaterial } from '../node_modules/meshline'
 import aboutMe from './about'
 
 /**
