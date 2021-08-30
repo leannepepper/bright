@@ -1,20 +1,17 @@
 import './style.css'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
 import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
-import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'meshline'
-import aboutMe from './about-me';
+import { MeshLine, MeshLineMaterial } from 'meshline'
+import aboutMe from './about-me'
 
 /**
  * UI
  */
 
-
 //State
 const state = {
-  isMouseTrailLine: true
+  isMouseTrailLine: false
 }
 
 //Buttons
@@ -28,7 +25,7 @@ function toggleActivity () {
   if (state.isMouseTrailLine) {
     toggleDiv.style.animation = 'revealLeft 0.2s forwards'
   } else {
-    toggleDiv.style.right = '41px'
+    toggleDiv.style.right = '21px'
     toggleDiv.style.animation = 'revealRight 0.2s forwards'
   }
 }
@@ -56,7 +53,6 @@ toggleActivity()
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
-
 //Helper
 function random (a, b) {
   const alpha = Math.random()
@@ -66,51 +62,6 @@ function random (a, b) {
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x558786)
-// scene.background = new THREE.Color(0xeda2d4)
-
-/**
- * Fonts
- */
-const fontLoader = new THREE.FontLoader()
-
-fontLoader.load('/fonts/helvetiker_regular.typeface.json', font => {
-  const textGeometry = new THREE.TextGeometry('Leanne Werner', {
-    font: font,
-    size: 0.6,
-    height: 0.07,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.03,
-    bevelSize: 0.02,
-    bevelOffset: 0,
-    bevelSegments: 15
-  })
-  //   const color = new THREE.Color('#d32f8f')
-  const color = new THREE.Color('#bed6d9')
-  textGeometry.center()
-  const titleTextGeometry = new THREE.TextGeometry('developer', {
-    font: font,
-    size: 0.2,
-    height: 0.02,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.03,
-    bevelSize: 0.002,
-    bevelOffset: 0,
-    bevelSegments: 15
-  })
-  titleTextGeometry.center()
-  titleTextGeometry.translate(
-    -(0 - 0.002) * 0.5, // Subtract bevel size
-    -(1.5 - 0.002) * 0.5, // Subtract bevel size
-    -0 * 0.5 // Subtract bevel thickness
-  )
-  const textMaterial = new THREE.MeshBasicMaterial({ color: color })
-  const nameText = new THREE.Mesh(textGeometry, textMaterial)
-  const titleText = new THREE.Mesh(titleTextGeometry, textMaterial)
-  scene.add(nameText)
-  scene.add(titleText)
-})
 
 /**
  * Positions
@@ -172,7 +123,10 @@ function setMouseTrail () {
     const sizes = [7, 4]
     for (let i = 0; i < colors.length; i++) {
       const line = new MeshLine()
-      const positions = setPosition(new Float32Array(parameters.count * 3), parameters.count)
+      const positions = setPosition(
+        new Float32Array(parameters.count * 3),
+        parameters.count
+      )
       line.setPoints(positions)
 
       material = new MeshLineMaterial({
@@ -217,22 +171,19 @@ function setMouseTrail () {
       blending: THREE.AdditiveBlending,
       vertexColors: true,
       uniforms: {
-        u_size: { value: 1000 * renderer.getPixelRatio() },
+        u_size: { value: 1000 },
         u_time: { value: 0 },
         u_mouse: { value: new THREE.Vector2() }
       }
     })
 
-    const positions = setPosition(new Float32Array(parameters.count * 3), parameters.count)
+    const positions = setPosition(
+      new Float32Array(parameters.count * 3),
+      parameters.count
+    )
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute('a_scale', new THREE.BufferAttribute(scales, 1))
-
-    const offset = new THREE.Vector3(
-      Math.abs(random(-1, 1) * 0.2),
-      Math.abs(random(-1, 1) * 0.2),
-      Math.abs(random(-1, 1) * 0.2)
-    )
 
     lines.push({ line: geometry, positions: positions })
     points = new THREE.Points(geometry, material)
@@ -279,7 +230,7 @@ function handleMouseMove (event) {
     material.uniforms.u_mouse.value.x = event.clientX * 0.001
     material.uniforms.u_mouse.value.y = event.clientY * 0.001
   }
-
+  // convert screen coordinates to threejs world position
   var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5)
   vector.unproject(camera)
   var dir = vector.sub(camera.position).normalize()
@@ -314,22 +265,11 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-// Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
-
 /**
  * Animate
  */
 
-const clock = new THREE.Clock()
-
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime()
-
-  // Update controls
-  controls.update()
-
   lines.forEach(function (line) {
     for (let i = 0; i < parameters.count; i++) {
       const i3 = i * 3
@@ -345,6 +285,7 @@ const tick = () => {
           line.positions[i3 + 1],
           line.positions[i3 + 2]
         )
+
         const tempPrevVec3 = new THREE.Vector3(
           line.positions[prev],
           line.positions[prev + 1],
@@ -362,7 +303,7 @@ const tick = () => {
     if (line.line.setPoints) {
       line.line.setPoints(line.positions, p => 1 - p)
     } else {
-      line.line.attributes.position.needsUpdate = true     
+      line.line.attributes.position.needsUpdate = true
     }
   })
   // Render

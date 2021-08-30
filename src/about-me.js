@@ -10,7 +10,7 @@ const aboutMeCanvas = document.querySelector('canvas.about-shader')
 // Scene
 const scene = new THREE.Scene()
 
-const geometry = new THREE.PlaneBufferGeometry(2, 2);
+const geometry = new THREE.PlaneBufferGeometry(2, 2)
 
 const material = new THREE.ShaderMaterial({
   vertexShader: vertexShader,
@@ -23,17 +23,17 @@ const material = new THREE.ShaderMaterial({
     u_time: { value: 0 },
     u_mouse: { value: new THREE.Vector2() },
     u_resolution: { value: new THREE.Vector2() },
-    color1: { value: new THREE.Vector3(0.99,1.0,0.71) },
-    color2: { value: new THREE.Vector3(1.0,0.87,0.23) },
+    color1: { value: new THREE.Vector3(0.99, 1.0, 0.71) },
+    color2: { value: new THREE.Vector3(1.0, 0.87, 0.23) }
   }
 })
 
 const positions = setPosition(new Float32Array(100 * 2))
 geometry.setAttribute('a_position', new THREE.BufferAttribute(positions, 2))
 
-const mesh = new THREE.Mesh(geometry, material);
+const mesh = new THREE.Mesh(geometry, material)
 
-scene.add(mesh);
+scene.add(mesh)
 /**
  * Sizes
  */
@@ -43,22 +43,22 @@ const sizes = {
 }
 
 window.addEventListener('resize', () => {
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-  
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-  
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  // Update sizes
+  sizes.width = window.innerWidth
+  sizes.height = window.innerHeight
 
-      //Update uniforms
-  material.uniforms.u_resolution.value.x = renderer.domElement.width;
-  material.uniforms.u_resolution.value.y = renderer.domElement.height;
-  })
+  // Update camera
+  camera.aspect = sizes.width / sizes.height
+  camera.updateProjectionMatrix()
+
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+  //Update uniforms
+  material.uniforms.u_resolution.value.x = renderer.domElement.width
+  material.uniforms.u_resolution.value.y = renderer.domElement.height
+})
 
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -78,12 +78,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-material.uniforms.u_resolution.value.x = renderer.domElement.width;
-material.uniforms.u_resolution.value.y = renderer.domElement.height;
-
-// Controls
-const control = new OrbitControls(camera, aboutMeCanvas)
-control.enableDamping = true
+material.uniforms.u_resolution.value.x = renderer.domElement.width
+material.uniforms.u_resolution.value.y = renderer.domElement.height
 
 /**
  * Animate
@@ -94,11 +90,8 @@ const clock = new THREE.Clock()
 const tick = () => {
   const elapsedTime = clock.getElapsedTime()
 
-  // Update controls
-  control.update()
-
   // Update material
-  material.uniforms.u_time.value = elapsedTime;
+  material.uniforms.u_time.value = elapsedTime
 
   // Render
   renderer.render(scene, camera)

@@ -13,7 +13,7 @@
   <body>
     <div class="nav">
       <ul>
-        <li><a href="#about-me">About</a></li>
+        <li><a href="#about">About</a></li>
         <li><a href="#work">Work</a></li>
       </ul>
 
@@ -25,6 +25,11 @@
         </li>
       </ul>
     </div>
+    <div class="name-tag">
+      <h1>Leanne Werner</h1>
+      <h4><span class="creative-coder">creative developer</span></h4>
+    </div>
+
     <canvas class="webgl"></canvas>
     <div class="about-me-container">
       <div id="about-me">
@@ -47,28 +52,47 @@
           </p>
         </div>
       </div>
-      <canvas class="about-shader"></canvas>
+      <canvas class="about-shader" id="about"></canvas>
     </div>
     <div id="work">
       <h1>Work</h1>
       <div class="work-grid">
-        <h3>Open Source</h3>
-        <h3>Writtings</h3>
-        <h3>Latest</h3>
-        <h3>Social</h3>
-
-        <a>Ayon</a>
         <span>
-          <div class="m-b-md"><a>Mouse Trails in Three.js</a></div>
-          <div class="m-b-md"><a>Float32Arrays</a></div>
+          <h3>Open Source</h3>
+          <a>Ayon</a>
+        </span>
+        <span>
+          <h3>Writtings</h3>
+          <span>
+            <div class="m-b-md"><a>Mouse Trails in Three.js</a></div>
+            <div class="m-b-md"><a>Float32Arrays</a></div>
+          </span>
         </span>
 
-        <a>3D Quick Measure</a>
+        <span
+          ><h3>Latest</h3>
+          <a>3D Quick Measure</a>
+        </span>
+
         <span>
-          <a class="m-r-sm"
-            ><i class="fa fa-github-square" aria-hidden="true"></i>
-          </a>
-          <a><i class="fa fa-linkedin-square" aria-hidden="true"></i> </a>
+          <h3>Social</h3>
+          <span>
+            <a
+              class="m-r-sm icon"
+              href="https://github.com/leannepepper"
+              target="_blank"
+              ><i class="fa fa-github-square" aria-hidden="true"></i>
+            </a>
+            <a
+              class="m-r-sm icon"
+              href="https://www.linkedin.com/in/leanne-werner-19813a121/"
+              target="_blank"
+              ><i class="fa fa-linkedin-square" aria-hidden="true"></i>
+            </a>
+            <a class="icon" href="https://twitter.com/lnpepper" target="_blank"
+              ><i class="fa fa-twitter-square"></i
+            ></a>
+          </span>
         </span>
       </div>
     </div>

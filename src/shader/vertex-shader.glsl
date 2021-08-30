@@ -1,7 +1,7 @@
  // Uniforms 
 uniform float u_size;
 uniform float u_time;
-uniform vec2 u_mouse;
+// uniform vec2 u_mouse;
 
 // Attributes
 attribute float a_scale;

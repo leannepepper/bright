@@ -19,7 +19,7 @@ h2 {
 }
 
 p {
-  font-size: 14px;
+  font-size: 16px;
   color: #163c3b;
 }
 
@@ -27,6 +27,7 @@ a,
 a:visited {
   color: #fff;
   text-decoration: none;
+  font-size: 20px;
 }
 
 a:hover {
@@ -34,14 +35,21 @@ a:hover {
   cursor: pointer;
 }
 
+.icon,
+.icon:hover {
+  font-size: 24px;
+  text-decoration: none;
+}
+
 .webgl {
-  height: 100vh;
+  height: 90vh !important;
   width: 100vw;
 }
 
 .about-shader {
-  height: 70vh !important;
-  width: 70% !important;
+  height: 500px !important;
+  width: 80% !important;
+  min-width: 1015px !important;
   margin: auto;
   border-radius: 30px;
 }
@@ -50,42 +58,50 @@ a:hover {
   background-color: #558786;
 }
 
+.name-tag {
+  position: absolute;
+  color: #bed7d9;
+  text-align: center;
+  width: 100%;
+  bottom: 45%;
+}
+
+.name-tag h1 {
+  font-size: 96px;
+}
+
+.name-tag h4 {
+  font-size: 48px;
+}
+
 #about-me {
   position: absolute;
-  margin: 30px;
-  left: 15%;
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  margin: 0px 14vw 0px 12vw;
+  bottom: -314px;
 }
 
 .avatar-box {
-  width: 400px;
-  height: 400px;
-  background-color: transparent;
-  border-radius: 2px;
-  margin: auto;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 .about-me-description {
   background-color: #fff;
-  position: absolute;
   padding: 40px;
-  border-radius: 2px;
-  left: 73%;
-  bottom: 0px;
-  width: 550px;
   border-radius: 30px;
+  box-shadow: 0px -5px 20px #fbcccc;
 }
 
 img {
+  border: 5px solid #215a59;
   height: fit-content;
+  border-radius: 50%;
 }
 
 .creative-coder {
-  background: linear-gradient(to right, #f32170, #ff6b08, #cf23cf, #eedd44);
+  background: linear-gradient(to right, #f6889d, #e5778b);
   background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
@@ -104,6 +120,8 @@ img {
   color: #fff;
   z-index: 100;
   padding: 20px;
+  padding-right: 0px;
+  width: 98vw;
 }
 
 ul {
@@ -151,25 +169,25 @@ button {
 
 #work h1 {
   text-align: center;
-  padding: 220px 0px 100px;
+  padding: 220px 0px 80px;
   color: #fff;
-  font-size: 38px;
+  font-size: 52px;
   text-shadow: 1px 0px 4px #215a59;
 }
 
 #work .work-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
   margin: 0px;
   text-align: center;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 #work div h3 {
   font-weight: 400;
-  font-size: 24px;
+  font-size: 32px;
   color: #bed7d9;
   text-shadow: 1px 0px 4px #215a59;
+  padding: 45px 0px 25px;
 }
 
 .m-b-md {
@@ -199,6 +217,14 @@ button {
 }
 
 @media only screen and (max-width: 1200px) {
+  .name-tag h1 {
+    font-size: 72px;
+  }
+
+  .name-tag h4 {
+    font-size: 28px;
+  }
+
   img {
     display: none;
   }
@@ -216,13 +242,15 @@ button {
   .about-me-description {
     margin: auto;
     left: auto;
-    bottom: auto;
     width: auto;
     border-radius: 0px;
-    position: relative;
+    position: absolute;
+    bottom: -54px;
   }
 
   .about-shader {
-    display: none;
+    width: 100vw !important;
+    border-radius: 0px;
+    min-width: 0px !important;
   }
 }
