@@ -49,13 +49,15 @@ a:hover {
 .about-shader {
   height: 500px !important;
   width: 80% !important;
-  min-width: 1015px !important;
   margin: auto;
   border-radius: 30px;
+  grid-area: 1/1;
 }
 
 .about-me-container {
   background-color: #558786;
+  display: grid;
+  place-items: center;
 }
 
 .name-tag {
@@ -75,11 +77,11 @@ a:hover {
 }
 
 #about-me {
-  position: absolute;
   display: grid;
   grid-template-columns: 1fr 2fr;
   margin: 0px 14vw 0px 12vw;
-  bottom: -314px;
+  grid-area: 1/1;
+  z-index: 2;
 }
 
 .avatar-box {
@@ -234,23 +236,12 @@ button {
   }
 
   #about-me {
-    left: auto;
-    position: relative;
-    margin: 0px;
+    display: initial;
+    width: 90%;
   }
-
-  .about-me-description {
-    margin: auto;
-    left: auto;
-    width: auto;
-    border-radius: 0px;
-    position: absolute;
-    bottom: -54px;
-  }
-
   .about-shader {
-    width: 100vw !important;
     border-radius: 0px;
-    min-width: 0px !important;
+    height: 80vh !important;
+    width: 100% !important;
   }
 }

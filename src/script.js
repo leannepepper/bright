@@ -3,18 +3,18 @@ import * as THREE from 'three'
 import fragmentShader from './shader/fragment-shader.glsl'
 import vertexShader from './shader/vertex-shader.glsl'
 import { MeshLine, MeshLineMaterial } from 'meshline'
-import aboutMe from './about-me'
+import aboutMe from './about'
 
 /**
  * UI
  */
 
-//State
+// State
 const state = {
   isMouseTrailLine: false
 }
 
-//Buttons
+// Buttons
 const btn1 = document.querySelector('#mouseLineTrail')
 const btn2 = document.querySelector('#mouseCircleTrail')
 const toggleDiv = document.querySelector('#mask')
@@ -50,16 +50,9 @@ btn2.disabled = !state.isMouseTrailLine ? true : false
 
 toggleActivity()
 
-// Canvas
 const canvas = document.querySelector('canvas.webgl')
+const mouseTrailContainer = document.querySelector('.mouse-trail-container')
 
-//Helper
-function random (a, b) {
-  const alpha = Math.random()
-  return a * (1.0 - alpha) + b * alpha
-}
-
-// Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x558786)
 
@@ -120,14 +113,15 @@ function setMouseTrail () {
 
   if (state.isMouseTrailLine) {
     //Rainbow Lines
+
     const sizes = [7, 4]
     for (let i = 0; i < colors.length; i++) {
-      const line = new MeshLine()
+      geometry = new MeshLine()
       const positions = setPosition(
         new Float32Array(parameters.count * 3),
         parameters.count
       )
-      line.setPoints(positions)
+      geometry.setPoints(positions)
 
       material = new MeshLineMaterial({
         color: colors[i],
@@ -135,8 +129,8 @@ function setMouseTrail () {
         sizeAttenuation: 0,
         lineWidth: sizes[i]
       })
-      meshLine = new THREE.Mesh(line, material)
-      lines.push({ line: line, positions: positions })
+      meshLine = new THREE.Mesh(geometry, material)
+      lines.push({ line: geometry, positions: positions })
 
       scene.add(meshLine)
     }
@@ -194,42 +188,35 @@ function setMouseTrail () {
 
 setMouseTrail()
 
-/**
- * Sizes
- */
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight
 }
 
 window.addEventListener('resize', () => {
-  // Update sizes
   sizes.width = window.innerWidth
   sizes.height = window.innerHeight
 
-  // Update camera
   camera.aspect = sizes.width / sizes.height
   camera.updateProjectionMatrix()
 
-  // Update renderer
   renderer.setSize(sizes.width, sizes.height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-/**
- * Mouse Move
- */
+// Mouse Move
 let mouse = new THREE.Vector3(0, 0, 1)
 
 function handleMouseMove (event) {
-  mouse.x = (event.clientX / sizes.width) * 2 - 1
-  mouse.y = -(event.clientY / sizes.height) * 2 + 1
+  mouse.x = ((event.clientX + window.pageXOffset) / sizes.width) * 2 - 1
+  mouse.y = -((event.clientY + window.pageYOffset) / sizes.height) * 2 + 1
   mouse.z = 1
 
   if (material.type === 'ShaderMaterial') {
     material.uniforms.u_mouse.value.x = event.clientX * 0.001
     material.uniforms.u_mouse.value.y = event.clientY * 0.001
   }
+
   // convert screen coordinates to threejs world position
   var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5)
   vector.unproject(camera)
@@ -240,12 +227,8 @@ function handleMouseMove (event) {
   mouse = pos
 }
 
-window.addEventListener('mousemove', handleMouseMove)
+mouseTrailContainer.addEventListener('mousemove', handleMouseMove)
 
-/**
- * Camera
- */
-// Base camera
 const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
@@ -256,18 +239,13 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.z = 5
 scene.add(camera)
 
-/**
- * Renderer
- */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-/**
- * Animate
- */
+const clock = new THREE.Clock()
 
 const tick = () => {
   lines.forEach(function (line) {
@@ -277,7 +255,7 @@ const tick = () => {
 
       if (i3 === 0) {
         line.positions[0] = mouse.x
-        line.positions[1] = mouse.y + 0.05
+        line.positions[1] = mouse.y
         line.positions[2] = mouse.z
       } else {
         const tempVec3 = new THREE.Vector3(
@@ -300,19 +278,20 @@ const tick = () => {
       }
     }
 
+    const elapsedTime = clock.getElapsedTime()
+
     if (line.line.setPoints) {
       line.line.setPoints(line.positions, p => 1 - p)
     } else {
       line.line.attributes.position.needsUpdate = true
+      material.uniforms.u_time.value = elapsedTime
     }
   })
-  // Render
+
   renderer.render(scene, camera)
-  // Call tick again on the next frame
+
   window.requestAnimationFrame(tick)
 }
 
 tick()
-
-// Run about me shader
 aboutMe()

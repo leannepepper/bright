@@ -1,4 +1,3 @@
-    
     varying float v_time;
     varying vec3 v_color;
     
@@ -10,5 +9,4 @@
 
              vec3 color = mix(vec3(0.0), v_color, strength);
             gl_FragColor = vec4(color, 1.0);
-            //gl_FragColor = vec4(vec3(strength), 1.0);
             }
