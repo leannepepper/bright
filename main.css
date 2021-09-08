@@ -46,6 +46,10 @@ a:hover {
   width: 100vw;
 }
 
+/* .mobile-bg {
+  display: none;
+} */
+
 .about-shader {
   height: 500px !important;
   width: 80% !important;
@@ -109,6 +113,10 @@ img {
   -webkit-background-clip: text;
 }
 
+.text-pink {
+  color: #e5778b;
+}
+
 #work {
   height: 100%;
   background-color: #558786;
@@ -157,7 +165,7 @@ button {
 }
 
 .trail-type {
-  width: 20px;
+  width: 19px;
   display: flex;
   justify-content: center;
 }
@@ -215,6 +223,25 @@ button {
   }
   to {
     clip-path: inset(0 0 0 0);
+  }
+}
+@media only screen and (max-width: 768px) {
+  .hidden-xs {
+    display: none;
+  }
+
+  .nav {
+    width: auto;
+  }
+
+  .webgl {
+    display: none;
+  }
+
+  .mobile-bg {
+    height: 97vh !important;
+    width: 100vw;
+    background-color: #558786;
   }
 }
 
