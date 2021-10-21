@@ -11,7 +11,7 @@ import aboutMe from './about'
 
 // State
 const state = {
-  isMouseTrailLine: false
+  isMouseTrailLine: true
 }
 
 // Buttons
