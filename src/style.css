@@ -86,11 +86,13 @@ a:hover {
   margin: 0px 14vw 0px 12vw;
   grid-area: 1/1;
   z-index: 2;
+  max-height: 300px;
 }
 
 .avatar-box {
   display: flex;
   justify-content: center;
+  max-height: 300px;
 }
 
 .about-me-description {
@@ -104,6 +106,7 @@ img {
   border: 5px solid #215a59;
   height: fit-content;
   border-radius: 50%;
+  max-height: 280px;
 }
 
 .creative-coder {
