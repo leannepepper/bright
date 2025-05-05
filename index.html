@@ -8,129 +8,19 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./src/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js"
+        }
+      }
+    </script>
     <script type="module" src="./src/script.js"></script>
-    <title>Leanne Werner Portfolio</title>
+    <title>Portfolio</title>
   </head>
   <body>
-    <div class="mouse-trail-container">
-      <div class="nav">
-        <ul>
-          <li><a href="#about">About</a></li>
-          <li><a href="#work">Work</a></li>
-        </ul>
-
-        <ul class="btn-toggle hidden-xs">
-          <div id="mask"></div>
-          <li class="trail-type">
-            <button id="mouseLineTrail">&#9761;</button>
-          </li>
-          <li class="trail-type left-border">
-            <button id="mouseCircleTrail">&#9737;</button>
-          </li>
-        </ul>
-      </div>
-      <div class="name-tag">
-        <h1>Leanne Werner</h1>
-        <h4><span class="creative-coder">creative developer</span></h4>
-      </div>
-      <div class="mobile-bg"></div>
-      <canvas class="webgl"></canvas>
-    </div>
-    <div class="about-me-container">
-      <div id="about-me">
-        <div class="avatar-box">
-          <img src="/static/avatar-photo.jpeg" width="280" />
-        </div>
-
-        <div class="about-me-description">
-          <h2>
-            Hello! My name is Leanne, <br />
-            I'm a <span class="text-pink">creative developer</span>
-          </h2>
-          <br />
-          <p>
-            My name is Leanne Werner and I'm currently living and working is San
-            Diego, California. As a developer I have special interest in 2D and
-            3D graphics and building tools that help make graphics easier to
-            create. I have a BA in Behavioral Neuroscience and have recently
-            gained an interest in design and writting GLSL shaders.
-          </p>
-        </div>
-      </div>
-      <canvas class="about-shader" id="about"></canvas>
-    </div>
-    <div id="work">
-      <h1>Work</h1>
-      <div class="work-grid">
-        <span>
-          <h3>Open Source</h3>
-          <a href="https://noya.design" target="_blank">Noya</a>
-        </span>
-        <span>
-          <h3>Writtings</h3>
-          <span>
-            <div class="m-b-md">
-              <a
-                href="https://medium.com/@leannewerner/creating-cell-fractured-animations-using-blender-and-react-three-fiber-dbd0299d4767"
-                target="_blank"
-              >
-                Cell Fractures with React Three Fiber
-              </a>
-            </div>
-
-            <div class="m-b-md">
-              <a
-                href="https://medium.com/@leannewerner/creating-a-mouse-trail-in-three-js-fb15346ce784"
-                target="_blank"
-                >Mouse Trails in Three.js</a
-              >
-            </div>
-            <div class="m-b-md">
-              <a
-                href="https://medium.com/@leannewerner/troubleshooting-instancedmesh-in-three-js-65e68b0a9753"
-                target="_blank"
-              >
-                Using InstancedMesh in Three.js
-              </a>
-            </div>
-          </span>
-        </span>
-
-        <span
-          ><h3>Latest</h3>
-          <div class="m-b-md">
-            <a href="https://3d-quick-measure.vercel.app/" target="_blank"
-              >Quick Measure</a
-            >
-          </div>
-          <div class="m-b-md">
-            <a href="https://glitter-material.vercel.app/" target="_blank"
-              >Glitter Shader</a
-            >
-          </div>
-        </span>
-
-        <span>
-          <h3>Social</h3>
-          <span>
-            <a
-              class="m-r-sm icon"
-              href="https://github.com/leannepepper"
-              target="_blank"
-              ><i class="fa fa-github-square" aria-hidden="true"></i>
-            </a>
-            <a
-              class="m-r-sm icon"
-              href="https://www.linkedin.com/in/leanne-werner-19813a121/"
-              target="_blank"
-              ><i class="fa fa-linkedin-square" aria-hidden="true"></i>
-            </a>
-            <a class="icon" href="https://twitter.com/lnpepper" target="_blank"
-              ><i class="fa fa-twitter-square"></i
-            ></a>
-          </span>
-        </span>
-      </div>
+    <div class="name-tag">
+      <h1>Hello World</h1>
     </div>
   </body>
 </html>
