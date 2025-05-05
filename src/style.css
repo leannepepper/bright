@@ -1,0 +1,59 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  /* overflow: hidden; */
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+h2 {
+  color: #215a59;
+  font-size: 38px;
+}
+
+p {
+  font-size: 16px;
+  color: #163c3b;
+}
+
+a,
+a:visited {
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+a:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.icon,
+.icon:hover {
+  font-size: 24px;
+  text-decoration: none;
+}
+
+.webgl {
+  height: 97vh !important;
+  width: 100vw;
+}
+
+.name-tag {
+  position: absolute;
+  color: #bed7d9;
+  text-align: center;
+  width: 100%;
+  bottom: 45%;
+}
+
+.name-tag h1 {
+  font-size: 96px;
+}
