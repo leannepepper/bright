@@ -14,6 +14,8 @@ let isDragging = false
 let holdingRemove = false
 let holdingCommand = false
 let allSelected = []
+let longPressTimer = null
+const LONG_PRESS_MS = 400
 
 let camera, scene, renderer
 let postProcessing
@@ -157,18 +159,43 @@ function changeSelectColor () {
 function onPointerDown (event) {
   isDragging = true
   updateMousePosition(event)
-  changeSelectColor()
+
+  const colorP = scene.getObjectByName('colorPicker')
+  if (colorP && colorP.visible) {
+    changeSelectColor()
+    return
+  }
+
+  if (event.pointerType === 'touch') {
+    longPressTimer = setTimeout(() => {
+      showColorPickerAt(pointer)
+    }, LONG_PRESS_MS)
+  } else {
+    changeSelectColor() // desktop behaviour
+  }
 }
 
 function onPointerMove (event) {
   updateMousePosition(event)
+  if (
+    longPressTimer &&
+    (Math.abs(event.movementX) > 5 || Math.abs(event.movementY) > 5)
+  ) {
+    clearTimeout(longPressTimer) // cancel long-press if they start dragging
+    longPressTimer = null
+    isDragging = true // now act like draw mode
+  }
+
   if (isDragging) {
     toggleLight()
   }
 }
 
 function onPointerUp () {
+  clearTimeout(longPressTimer)
+  longPressTimer = null
   isDragging = false
+  hideColorPicker()
 }
 
 function onKeyDown (event) {
@@ -229,6 +256,21 @@ function onMouseMove (event) {
   if (intersects.length > 0 && colorPicker) {
     const point = intersects[0].point
     colorPicker.position.set(point.x, point.y, 0.1)
+  }
+}
+
+function showColorPickerAt (pointer) {
+  const colorP = scene.getObjectByName('colorPicker')
+  if (colorP) {
+    colorP.position.set(pointer.x, pointer.y, 0.1)
+    colorP.visible = true
+  }
+}
+
+function hideColorPicker () {
+  const colorP = scene.getObjectByName('colorPicker')
+  if (colorP) {
+    colorP.visible = false
   }
 }
 
