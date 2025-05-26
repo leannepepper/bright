@@ -41,7 +41,7 @@ const centerCell = vec2(centerX, centerY)
 const diff = st.sub(centerCell)
 const dist = length(diff)
 
-const circleMask = smoothstep(0.0, 0.05, float(0.4).sub(dist))
+const circleMask = smoothstep(0.0, 0.05, float(0.44).sub(dist))
 
 const u = colIndex.add(0.5).div(float(GRID_SIZE))
 const v = rowIndex.add(0.5).div(float(GRID_SIZE))
