@@ -2,7 +2,12 @@ import * as THREE from 'three'
 import { pass } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker, colors } from './colorPicker.js'
-import { flowers, GRID_SIZE, selectedTexture } from './constants.js'
+import {
+  aspectUniform,
+  flowers,
+  GRID_SIZE,
+  selectedTexture
+} from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
 
 let isDragging = false
@@ -21,7 +26,7 @@ init()
 
 function init () {
   renderer = new WebGPURenderer({ antialias: true })
-  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setAnimationLoop(render)
   document.body.appendChild(renderer.domElement)
@@ -30,13 +35,8 @@ function init () {
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0x222222)
 
-  camera = new THREE.PerspectiveCamera(
-    70,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    50
-  )
-  camera.position.z = 1
+  const aspect = window.innerWidth / window.innerHeight
+  camera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, -1, 1)
 
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
@@ -55,13 +55,23 @@ function init () {
   for (const flower of flowers) {
     updateColor(flower.index, new THREE.Color(flower.color))
   }
+
+  LightBrightMesh.scale.set(aspect, 1, 1)
+  aspectUniform.value = aspect
 }
 
 function onWindowResize () {
-  camera.aspect = window.innerWidth / window.innerHeight
+  const aspect = window.innerWidth / window.innerHeight
+  camera.left = -aspect
+  camera.right = aspect
+  camera.top = 1
+  camera.bottom = -1
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
+
+  LightBrightMesh.scale.set(aspect, 1, 1)
+  aspectUniform.value = aspect
 }
 
 function render (time) {
@@ -76,15 +86,18 @@ function toggleLight () {
   if (intersects.length > 0) {
     const uv = intersects[0].uv
 
-    const stX = uv.x * GRID_SIZE
+    const stX = uv.x * GRID_SIZE * aspectUniform.value
     const stY = uv.y * GRID_SIZE
     const s = Math.sqrt(3) / 2 // TODO: Fix index bug
 
     let row = Math.floor(stY / s)
     const parity = row % 2
     let col = Math.floor(stX - parity * 0.5)
+    col = ((col % GRID_SIZE) + GRID_SIZE) % GRID_SIZE
 
     const index = 4 * (col + row * GRID_SIZE)
+    console.log('index', index)
+
     updateColor(index, selectedColor)
   }
 }

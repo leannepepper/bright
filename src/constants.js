@@ -1,7 +1,9 @@
 import * as THREE from 'three'
 import { colors } from './colorPicker.js'
+import { uniform } from 'three/tsl'
 
 export const GRID_SIZE = 40.0
+export const aspectUniform = uniform(window.innerWidth / window.innerHeight)
 
 const data = new Uint8Array(GRID_SIZE * GRID_SIZE * 4)
 export const selectedTexture = new THREE.DataTexture(
@@ -10,6 +12,9 @@ export const selectedTexture = new THREE.DataTexture(
   GRID_SIZE,
   THREE.RGBAFormat
 )
+selectedTexture.wrapS = THREE.RepeatWrapping
+selectedTexture.wrapT = THREE.RepeatWrapping
+
 selectedTexture.needsUpdate = true
 
 export const flowers = [

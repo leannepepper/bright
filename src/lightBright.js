@@ -13,7 +13,7 @@ import {
   vec3
 } from 'three/tsl'
 import { MeshBasicNodeMaterial } from 'three/webgpu'
-import { GRID_SIZE, selectedTexture } from './constants.js'
+import { GRID_SIZE, selectedTexture, aspectUniform } from './constants.js'
 
 /** Create Mesh with Honeycomb Grid and Lights */
 const material = new MeshBasicNodeMaterial()
@@ -22,7 +22,10 @@ const shapeColor = color('#19191f')
 const black = color('#000000')
 
 const uvVar = uv()
-const st = vec2(uvVar.mul(GRID_SIZE))
+const st = vec2(
+  uvVar.x.mul(GRID_SIZE).mul(aspectUniform),
+  uvVar.y.mul(GRID_SIZE)
+)
 
 const sqrt3 = float(Math.sqrt(3))
 const s = sqrt3.div(2.0) // TODO: Fix index bug
