@@ -13,6 +13,8 @@ body {
 }
 
 canvas {
+  touch-action: none;
+  user-select: none;
   position: fixed;
   inset: 0;
   width: 100vw;
