@@ -6,6 +6,7 @@ import {
   aspectUniform,
   flowers,
   GRID_SIZE,
+  isTouchDevice,
   selectedTexture
 } from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
@@ -98,7 +99,6 @@ function toggleLight () {
     col = ((col % GRID_SIZE) + GRID_SIZE) % GRID_SIZE
 
     const index = 4 * (col + row * GRID_SIZE)
-    console.log('index', index)
 
     updateColor(index, selectedColor)
   }
@@ -157,6 +157,7 @@ function changeSelectColor () {
 }
 
 function onPointerDown (event) {
+  event.preventDefault()
   isDragging = true
   updateMousePosition(event)
 
@@ -171,7 +172,7 @@ function onPointerDown (event) {
       showColorPickerAt(pointer)
     }, LONG_PRESS_MS)
   } else {
-    changeSelectColor() // desktop behaviour
+    changeSelectColor()
   }
 }
 
@@ -181,9 +182,9 @@ function onPointerMove (event) {
     longPressTimer &&
     (Math.abs(event.movementX) > 5 || Math.abs(event.movementY) > 5)
   ) {
-    clearTimeout(longPressTimer) // cancel long-press if they start dragging
+    clearTimeout(longPressTimer)
     longPressTimer = null
-    isDragging = true // now act like draw mode
+    isDragging = true
   }
 
   if (isDragging) {
@@ -201,20 +202,13 @@ function onPointerUp () {
 function onKeyDown (event) {
   if (event.key === 'Meta') {
     holdingCommand = true
-
-    const colorP = scene.getObjectByName('colorPicker')
-    if (colorP) {
-      colorP.visible = true
-    }
+    showColorPickerAt(pointer)
   }
 }
 
 function onKeyUp (event) {
   holdingCommand = false
-  const colorP = scene.getObjectByName('colorPicker')
-  if (colorP) {
-    colorP.visible = false
-  }
+  hideColorPicker()
 }
 
 let hoveredSwatch = null
@@ -261,10 +255,18 @@ function onMouseMove (event) {
 
 function showColorPickerAt (pointer) {
   const colorP = scene.getObjectByName('colorPicker')
-  if (colorP) {
-    colorP.position.set(pointer.x, pointer.y, 0.1)
-    colorP.visible = true
+  const worldX = pointer.x * camera.right
+  const worldY = pointer.y
+
+  if (isTouchDevice) {
+    colorP.scale.set(3.0, 3.0, 1.0)
+    colorP.position.set(worldX, worldY, 0.1)
+  } else {
+    colorP.scale.set(1, 1, 1)
+    colorP.position.set(worldX, worldY, 0.1)
   }
+
+  colorP.visible = true
 }
 
 function hideColorPicker () {
