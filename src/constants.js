@@ -3,6 +3,7 @@ import { colors } from './colorPicker.js'
 import { uniform } from 'three/tsl'
 
 export const GRID_SIZE = 40.0
+export const isTouchDevice = matchMedia('(pointer: coarse)').matches
 export const aspectUniform = uniform(window.innerWidth / window.innerHeight)
 
 const data = new Uint8Array(GRID_SIZE * GRID_SIZE * 4)
