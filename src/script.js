@@ -177,6 +177,7 @@ function onPointerDown (event) {
 }
 
 function onPointerMove (event) {
+  event.preventDefault()
   updateMousePosition(event)
   if (
     longPressTimer &&
@@ -192,7 +193,9 @@ function onPointerMove (event) {
   }
 }
 
-function onPointerUp () {
+function onPointerUp (event) {
+  event.preventDefault()
+
   clearTimeout(longPressTimer)
   longPressTimer = null
   isDragging = false
@@ -200,6 +203,8 @@ function onPointerUp () {
 }
 
 function onKeyDown (event) {
+  event.preventDefault()
+
   if (event.key === 'Meta') {
     holdingCommand = true
     showColorPickerAt(pointer)
@@ -207,6 +212,7 @@ function onKeyDown (event) {
 }
 
 function onKeyUp (event) {
+  event.preventDefault()
   holdingCommand = false
   hideColorPicker()
 }
@@ -214,6 +220,8 @@ function onKeyUp (event) {
 let hoveredSwatch = null
 
 function onMouseMove (event) {
+  event.preventDefault()
+
   updateMousePosition(event)
   raycaster.setFromCamera(pointer, camera)
 
