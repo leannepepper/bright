@@ -3,11 +3,12 @@ import { pass } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker, colors } from './colorPicker.js'
 import {
-  aspectUniform,
+  gridColsUniform,
   flowers,
   GRID_SIZE,
   isTouchDevice,
-  selectedTexture
+  selectedTexture,
+  updateSelectedTexture
 } from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
 
@@ -55,26 +56,25 @@ function init () {
   postProcessing.outputNode = combinedPass
 
   // draw image
-  for (const flower of flowers) {
-    updateColor(flower.index, new THREE.Color(flower.color))
-  }
+  // for (const flower of flowers) {
+  //   updateColor(flower.index, new THREE.Color(flower.color))
+  // }
 
   LightBrightMesh.scale.set(aspect, 1, 1)
-  aspectUniform.value = aspect
 }
 
 function onWindowResize () {
   const aspect = window.innerWidth / window.innerHeight
   camera.left = -aspect
   camera.right = aspect
-  camera.top = 1
-  camera.bottom = -1
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
 
   LightBrightMesh.scale.set(aspect, 1, 1)
-  aspectUniform.value = aspect
+
+  // rebuild the data texture with new width
+  updateSelectedTexture(aspect)
 }
 
 function render (time) {
@@ -88,17 +88,18 @@ function toggleLight () {
 
   if (intersects.length > 0) {
     const uv = intersects[0].uv
+    const cols = gridColsUniform.value
 
-    const stX = uv.x * GRID_SIZE * aspectUniform.value
+    const stX = uv.x * cols
     const stY = uv.y * GRID_SIZE
     const s = Math.sqrt(3) / 2 // TODO: Fix index bug
 
     let row = Math.floor(stY / s)
     const parity = row % 2
     let col = Math.floor(stX - parity * 0.5)
-    col = ((col % GRID_SIZE) + GRID_SIZE) % GRID_SIZE
+    col = ((col % cols) + cols) % cols // wrap horizontally
 
-    const index = 4 * (col + row * GRID_SIZE)
+    const index = 4 * (col + row * cols)
 
     updateColor(index, selectedColor)
   }

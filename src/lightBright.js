@@ -13,7 +13,7 @@ import {
   vec3
 } from 'three/tsl'
 import { MeshBasicNodeMaterial } from 'three/webgpu'
-import { GRID_SIZE, selectedTexture, aspectUniform } from './constants.js'
+import { GRID_SIZE, selectedTexture, gridColsUniform } from './constants.js'
 
 /** Create Mesh with Honeycomb Grid and Lights */
 const material = new MeshBasicNodeMaterial()
@@ -22,10 +22,10 @@ const shapeColor = color('#19191f')
 const black = color('#000000')
 
 const uvVar = uv()
-const st = vec2(
-  uvVar.x.mul(GRID_SIZE).mul(aspectUniform),
-  uvVar.y.mul(GRID_SIZE)
-)
+const gridCols = float(gridColsUniform)
+const gridRows = float(GRID_SIZE)
+
+const st = vec2(uvVar.x.mul(gridCols), uvVar.y.mul(gridRows))
 
 const sqrt3 = float(Math.sqrt(3))
 const s = sqrt3.div(2.0) // TODO: Fix index bug
@@ -43,12 +43,13 @@ const dist = length(diff)
 
 const circleMask = smoothstep(0.0, 0.05, float(0.44).sub(dist))
 
-const u = colIndex.add(0.5).div(float(GRID_SIZE))
-const v = rowIndex.add(0.5).div(float(GRID_SIZE))
+const u = colIndex.add(0.5).div(gridCols)
+const v = rowIndex.add(0.5).div(gridRows)
 
-const texSample = texture(selectedTexture, vec2(u, v))
-const isSelected = texSample.a // use alpha channel to store selected state
-const randomColor = texSample.rgb
+const texSampleData = texture(selectedTexture, vec2(u, v))
+
+const isSelected = texSampleData.a // use alpha channel to store selected state
+const randomColor = texSampleData.rgb
 
 const baseColor = mix(black, shapeColor, circleMask)
 const selectedColor = mix(baseColor, randomColor, isSelected)
