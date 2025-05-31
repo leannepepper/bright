@@ -4,19 +4,39 @@ import { uniform } from 'three/tsl'
 
 export const GRID_SIZE = 40.0
 export const isTouchDevice = matchMedia('(pointer: coarse)').matches
-export const aspectUniform = uniform(window.innerWidth / window.innerHeight)
+export const gridColsUniform = uniform(40)
 
-const data = new Uint8Array(GRID_SIZE * GRID_SIZE * 4)
-export const selectedTexture = new THREE.DataTexture(
-  data,
-  GRID_SIZE,
-  GRID_SIZE,
-  THREE.RGBAFormat
+export function buildDataTexture (aspect) {
+  const cols = Math.ceil(GRID_SIZE * aspect)
+  gridColsUniform.value = cols
+
+  const data = new Uint8Array(cols * GRID_SIZE * 4)
+  const tex = new THREE.DataTexture(data, cols, GRID_SIZE, THREE.RGBAFormat)
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+  tex.minFilter = tex.magFilter = THREE.NearestFilter
+  tex.needsUpdate = true
+  return tex
+}
+
+export let selectedTexture = buildDataTexture(
+  window.innerWidth / window.innerHeight
 )
-selectedTexture.wrapS = THREE.RepeatWrapping
-selectedTexture.wrapT = THREE.RepeatWrapping
 
-selectedTexture.needsUpdate = true
+export function updateSelectedTexture (aspect) {
+  const cols = Math.ceil(GRID_SIZE * aspect)
+  if (selectedTexture.image.width === cols) {
+    return
+  }
+
+  gridColsUniform.value = cols
+  selectedTexture.image.data = new Uint8Array(cols * GRID_SIZE * 4)
+  selectedTexture.image.width = cols
+  selectedTexture.image.height = GRID_SIZE
+
+  // force a new texture on the GPU, not a great solution, this will clear the texture.
+  selectedTexture.dispose()
+  selectedTexture.needsUpdate = true
+}
 
 export const flowers = [
   {
