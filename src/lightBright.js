@@ -26,9 +26,7 @@ const gridCols = float(gridColsUniform)
 const gridRows = float(GRID_SIZE)
 
 const st = vec2(uvVar.x.mul(gridCols), uvVar.y.mul(gridRows))
-
-const sqrt3 = float(Math.sqrt(3))
-const s = sqrt3.div(2.0) // TODO: Fix index bug
+const s = float(1.0) // TODO: Fix index bug
 
 const rowIndex = floor(st.y.div(s))
 const parity = mod(rowIndex, float(2.0))
