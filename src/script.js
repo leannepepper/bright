@@ -92,9 +92,8 @@ function toggleLight () {
 
     const stX = uv.x * cols
     const stY = uv.y * GRID_SIZE
-    const s = 1.0 //TODO: Fix index bug
 
-    let row = Math.floor(stY / s)
+    let row = Math.floor(stY)
     const parity = row % 2
     let col = Math.floor(stX - parity * 0.5)
     col = ((col % cols) + cols) % cols // wrap horizontally
