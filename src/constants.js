@@ -12,7 +12,7 @@ export function buildDataTexture (aspect) {
 
   const data = new Uint8Array(cols * GRID_SIZE * 4)
   const tex = new THREE.DataTexture(data, cols, GRID_SIZE, THREE.RGBAFormat)
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+  //   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.minFilter = tex.magFilter = THREE.NearestFilter
   tex.needsUpdate = true
   return tex

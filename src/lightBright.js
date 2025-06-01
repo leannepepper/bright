@@ -27,15 +27,12 @@ const gridRows = float(GRID_SIZE)
 
 const st = vec2(uvVar.x.mul(gridCols), uvVar.y.mul(gridRows))
 
-const sqrt3 = float(Math.sqrt(3))
-const s = sqrt3.div(2.0) // TODO: Fix index bug
-
-const rowIndex = floor(st.y.div(s))
+const rowIndex = floor(st.y)
 const parity = mod(rowIndex, float(2.0))
 const colIndex = floor(st.x.sub(parity.mul(0.5)))
 
 const centerX = colIndex.add(parity.mul(0.5)).add(0.5)
-const centerY = rowIndex.mul(s).add(s.mul(0.5))
+const centerY = rowIndex.add(0.5)
 const centerCell = vec2(centerX, centerY)
 
 const diff = st.sub(centerCell)
