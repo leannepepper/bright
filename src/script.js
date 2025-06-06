@@ -11,13 +11,15 @@ import {
   updateSelectedTexture
 } from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
+import {
+  colorIndicator,
+  updateColorIndicatorPosition
+} from './colorIndicator.js'
 
 let isDragging = false
 let holdingRemove = false
 let holdingCommand = false
 let allSelected = []
-let longPressTimer = null
-const LONG_PRESS_MS = 400
 
 let camera, scene, renderer
 let postProcessing
@@ -44,6 +46,7 @@ function init () {
 
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
+  scene.add(colorIndicator)
 
   // Post Processing
   postProcessing = new PostProcessing(renderer)
@@ -61,6 +64,7 @@ function init () {
   // }
 
   LightBrightMesh.scale.set(aspect, 1, 1)
+  updateColorIndicatorPosition(camera)
 }
 
 function onWindowResize () {
@@ -75,6 +79,7 @@ function onWindowResize () {
 
   // rebuild the data texture with new width
   updateSelectedTexture(aspect)
+  updateColorIndicatorPosition(camera)
 }
 
 function render (time) {
@@ -166,27 +171,12 @@ function onPointerDown (event) {
     changeSelectColor()
     return
   }
-
-  if (event.pointerType === 'touch') {
-    longPressTimer = setTimeout(() => {
-      showColorPickerAt(pointer)
-    }, LONG_PRESS_MS)
-  } else {
-    changeSelectColor()
-  }
+  changeSelectColor()
 }
 
 function onPointerMove (event) {
   event.preventDefault()
   updateMousePosition(event)
-  if (
-    longPressTimer &&
-    (Math.abs(event.movementX) > 5 || Math.abs(event.movementY) > 5)
-  ) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
-    isDragging = true
-  }
 
   if (isDragging) {
     toggleLight()
@@ -195,9 +185,6 @@ function onPointerMove (event) {
 
 function onPointerUp (event) {
   event.preventDefault()
-
-  clearTimeout(longPressTimer)
-  longPressTimer = null
   isDragging = false
   hideColorPicker()
 }
@@ -270,7 +257,7 @@ function showColorPickerAt (pointer) {
     colorP.scale.set(3.0, 3.0, 1.0)
     colorP.position.set(worldX, worldY, 0.1)
   } else {
-    colorP.scale.set(1, 1, 1)
+    colorP.scale.set(2.0, 2.0, 1.0)
     colorP.position.set(worldX, worldY, 0.1)
   }
 
