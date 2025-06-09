@@ -3,7 +3,6 @@ import { colors } from './colorPicker.js'
 import { uniform } from 'three/tsl'
 
 export const GRID_SIZE = 40.0
-export const isTouchDevice = matchMedia('(pointer: coarse)').matches
 export const gridColsUniform = uniform(40)
 
 export function buildDataTexture (aspect) {

@@ -6,14 +6,15 @@ import {
   gridColsUniform,
   flowers,
   GRID_SIZE,
-  isTouchDevice,
   selectedTexture,
   updateSelectedTexture
 } from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
 import {
   colorIndicator,
-  updateColorIndicatorPosition
+  updateColorIndicatorPosition,
+  circleSize,
+  updateColorIndicatorColor
 } from './colorIndicator.js'
 
 let isDragging = false
@@ -157,6 +158,7 @@ function changeSelectColor () {
       } else {
         holdingRemove = false
       }
+      updateColorIndicatorColor(colorName)
     }
   }
 }
@@ -165,12 +167,37 @@ function onPointerDown (event) {
   event.preventDefault()
   isDragging = true
   updateMousePosition(event)
+  raycaster.setFromCamera(pointer, camera)
 
   const colorP = scene.getObjectByName('colorPicker')
-  if (colorP && colorP.visible) {
-    changeSelectColor()
+
+  // 1) If you tapped the indicator → open (or re-open) the picker and bail out.
+  const hitIndicator = raycaster.intersectObjects([colorIndicator], true)
+  if (hitIndicator.length > 0) {
+    const margin = 0.3
+    const worldX = camera.right - circleSize - margin
+    const worldY = camera.bottom + circleSize + margin
+    const ndc = new THREE.Vector2(worldX / camera.right, worldY)
+
+    showColorPickerAt(ndc)
+
     return
   }
+
+  // 2) If picker is visible & you tapped on the picker mesh itself → select that swatch.
+  if (colorP.visible) {
+    const hitPicker = raycaster.intersectObject(colorP, true)
+    if (hitPicker.length > 0) {
+      changeSelectColor() // this reads the hit & updates selectedColor
+      return
+    }
+
+    // 3) If picker is visible and you tapped *anywhere else* → close it.
+    hideColorPicker()
+    return
+  }
+
+  // 4) Otherwise (picker was closed & you didn’t hit the indicator) → paint
   changeSelectColor()
 }
 
@@ -186,7 +213,6 @@ function onPointerMove (event) {
 function onPointerUp (event) {
   event.preventDefault()
   isDragging = false
-  hideColorPicker()
 }
 
 function onKeyDown (event) {
@@ -252,14 +278,8 @@ function showColorPickerAt (pointer) {
   const colorP = scene.getObjectByName('colorPicker')
   const worldX = pointer.x * camera.right
   const worldY = pointer.y
-
-  if (isTouchDevice) {
-    colorP.scale.set(3.0, 3.0, 1.0)
-    colorP.position.set(worldX, worldY, 0.1)
-  } else {
-    colorP.scale.set(2.0, 2.0, 1.0)
-    colorP.position.set(worldX, worldY, 0.1)
-  }
+  colorP.scale.set(2.0, 2.0, 1.0)
+  colorP.position.set(worldX, worldY, 0.1)
 
   colorP.visible = true
 }
