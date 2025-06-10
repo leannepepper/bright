@@ -44,6 +44,8 @@ function init () {
 
   const aspect = window.innerWidth / window.innerHeight
   camera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, -1, 1)
+  camera.position.set(0, 0, 1)
+  camera.updateProjectionMatrix()
 
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
@@ -172,7 +174,8 @@ function onPointerDown (event) {
   const colorP = scene.getObjectByName('colorPicker')
 
   // 1) If you tapped the indicator → open (or re-open) the picker and bail out.
-  const hitIndicator = raycaster.intersectObjects([colorIndicator], true)
+  const hitIndicator = raycaster.intersectObject(colorIndicator, true)
+
   if (hitIndicator.length > 0) {
     const margin = 0.3
     const worldX = camera.right - circleSize - margin
@@ -208,6 +211,8 @@ function onPointerMove (event) {
   if (isDragging) {
     toggleLight()
   }
+
+  hoverAndPlaceColorPicker(event)
 }
 
 function onPointerUp (event) {
@@ -232,10 +237,7 @@ function onKeyUp (event) {
 
 let hoveredSwatch = null
 
-function onMouseMove (event) {
-  event.preventDefault()
-
-  updateMousePosition(event)
+function hoverAndPlaceColorPicker (event) {
   raycaster.setFromCamera(pointer, camera)
 
   const colorP = scene.getObjectByName('colorPicker')
@@ -291,10 +293,9 @@ function hideColorPicker () {
   }
 }
 
+window.addEventListener('resize', onWindowResize)
 window.addEventListener('pointerdown', onPointerDown)
 window.addEventListener('pointermove', onPointerMove)
-window.addEventListener('mousemove', onMouseMove)
 window.addEventListener('pointerup', onPointerUp)
 window.addEventListener('keydown', onKeyDown)
-window.addEventListener('resize', onWindowResize)
 window.addEventListener('keyup', onKeyUp)

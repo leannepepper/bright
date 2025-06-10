@@ -38,7 +38,7 @@ colorIndicator.add(backgroundMesh)
 colorIndicator.add(colorMesh)
 colorIndicator.add(slash)
 colorIndicator.name = 'ColorIndicator'
-colorIndicator.position.set(0.5, -0.5, 0.001)
+colorIndicator.position.set(0.5, -0.5, 0.0)
 
 export function updateColorIndicatorPosition (camera) {
   if (!camera || !colorIndicator) return
