@@ -16,6 +16,7 @@ import {
   circleSize,
   updateColorIndicatorColor
 } from './colorIndicator.js'
+import { bloom } from 'three/tsl/bloom'
 
 let isDragging = false
 let holdingRemove = false
@@ -57,7 +58,7 @@ function init () {
   const scenePassColor = scenePass.getTextureNode()
 
   let combinedPass = scenePassColor
-  // combinedPass = lightingPass(combinedPass, 0.8)
+  combinedPass = bloom(combinedPass, 10, 0.1, 0)
 
   postProcessing.outputNode = combinedPass
 

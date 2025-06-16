@@ -46,11 +46,17 @@ const v = rowIndex.add(0.5).div(gridRows)
 const texSampleData = texture(selectedTexture, vec2(u, v))
 
 const isSelected = texSampleData.a // use alpha channel to store selected state
-const randomColor = texSampleData.rgb
+const texColor = texSampleData.rgb
 
 const baseColor = mix(black, shapeColor, circleMask)
-const selectedColor = mix(baseColor, randomColor, isSelected)
+const selectedColor = mix(baseColor, texColor, isSelected)
 const finalColor = mix(baseColor, selectedColor, circleMask)
+
+// const finalColor = mix(
+//   baseColor,
+//   selectedColor,
+//   smoothstep(0.9, 0.0, dist.mul(1.0))
+// )
 
 material.colorNode = finalColor
 
