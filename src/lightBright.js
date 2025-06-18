@@ -52,13 +52,8 @@ const baseColor = mix(black, shapeColor, circleMask)
 const selectedColor = mix(baseColor, texColor, isSelected)
 const finalColor = mix(baseColor, selectedColor, circleMask)
 
-// const finalColor = mix(
-//   baseColor,
-//   selectedColor,
-//   smoothstep(0.9, 0.0, dist.mul(1.0))
-// )
-
 material.colorNode = finalColor
+material.emissiveNode = finalColor
 
 const geometry = new THREE.PlaneGeometry(2, 2)
 export const LightBrightMesh = new THREE.Mesh(geometry, material)
