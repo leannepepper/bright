@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { pass, mrt, vec4, emissive, output } from 'three/tsl'
+import { pass, mrt, emissive, output } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker, colors } from './colorPicker.js'
 import {
@@ -33,34 +33,44 @@ let selectedColor = colors.orange
 init()
 
 function init () {
+  const aspect = window.innerWidth / window.innerHeight
+
   renderer = new WebGPURenderer({ antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setAnimationLoop(render)
+
   document.body.appendChild(renderer.domElement)
 
-  // Scene
-  scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x222222)
-
-  const aspect = window.innerWidth / window.innerHeight
   camera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, -1, 1)
   camera.position.set(0, 0, 1)
   camera.updateProjectionMatrix()
 
+  scene = new THREE.Scene()
+  scene.background = new THREE.Color(0x222222)
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
   scene.add(colorIndicator)
 
-  // Post Processing
   postProcessing = new PostProcessing(renderer)
-  const scenePass = pass(scene, camera)
 
+  const scenePass = pass(scene, camera)
   scenePass.setMRT(mrt({ output, emissive }))
 
   const colorBuffer = scenePass.getTextureNode('output')
   const emissiveBuffer = scenePass.getTextureNode('emissive')
-  const bloomPass = bloom(emissiveBuffer, 1, 0.1, 0)
+
+  const bloomStrength = 0.5
+  const bloomThreshold = 0.0
+  const bloomRadius = 0.1
+
+  const bloomPass = bloom(
+    emissiveBuffer,
+    bloomStrength,
+    bloomThreshold,
+    bloomRadius
+  )
+
   postProcessing.outputNode = colorBuffer.add(bloomPass)
 
   LightBrightMesh.scale.set(aspect, 1, 1)
@@ -82,7 +92,7 @@ function onWindowResize () {
   updateColorIndicatorPosition(camera)
 }
 
-function render (time) {
+function render () {
   postProcessing.render()
 }
 
@@ -101,7 +111,7 @@ function toggleLight () {
     let row = Math.floor(stY)
     const parity = row % 2
     let col = Math.floor(stX - parity * 0.5)
-    col = ((col % cols) + cols) % cols // wrap horizontally
+    col = ((col % cols) + cols) % cols
 
     const index = 4 * (col + row * cols)
 
@@ -169,8 +179,6 @@ function onPointerDown (event) {
   raycaster.setFromCamera(pointer, camera)
 
   const colorP = scene.getObjectByName('colorPicker')
-
-  // 1) If you tapped the indicator → open (or re-open) the picker and bail out.
   const hitIndicator = raycaster.intersectObject(colorIndicator, true)
 
   if (hitIndicator.length > 0) {
@@ -184,20 +192,17 @@ function onPointerDown (event) {
     return
   }
 
-  // 2) If picker is visible & you tapped on the picker mesh itself → select that swatch.
   if (colorP.visible) {
     const hitPicker = raycaster.intersectObject(colorP, true)
     if (hitPicker.length > 0) {
-      changeSelectColor() // this reads the hit & updates selectedColor
+      changeSelectColor()
       return
     }
 
-    // 3) If picker is visible and you tapped *anywhere else* → close it.
     hideColorPicker()
     return
   }
 
-  // 4) Otherwise (picker was closed & you didn’t hit the indicator) → paint
   changeSelectColor()
 }
 
@@ -258,7 +263,6 @@ function hoverAndPlaceColorPicker (event) {
     return
   }
 
-  // If color picker isn't visible, reset the hovered swatch
   if (hoveredSwatch) {
     hoveredSwatch.scale.set(1, 1, 1)
     hoveredSwatch = null
