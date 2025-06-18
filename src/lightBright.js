@@ -12,11 +12,12 @@ import {
   vec2,
   vec3
 } from 'three/tsl'
-import { MeshBasicNodeMaterial } from 'three/webgpu'
+import { MeshStandardNodeMaterial } from 'three/webgpu'
 import { GRID_SIZE, selectedTexture, gridColsUniform } from './constants.js'
 
 /** Create Mesh with Honeycomb Grid and Lights */
-const material = new MeshBasicNodeMaterial()
+const material = new MeshStandardNodeMaterial()
+material.toneMapped = false
 
 const shapeColor = color('#19191f')
 const black = color('#000000')
@@ -52,7 +53,7 @@ const baseColor = mix(black, shapeColor, circleMask)
 const selectedColor = mix(baseColor, texColor, isSelected)
 const finalColor = mix(baseColor, selectedColor, circleMask)
 
-material.colorNode = finalColor
+material.outputNode = finalColor
 material.emissiveNode = finalColor
 
 const geometry = new THREE.PlaneGeometry(2, 2)

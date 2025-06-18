@@ -32,7 +32,7 @@ const slash = new THREE.Mesh(slashGeometry, slashMaterial)
 slash.name = 'slash'
 slash.position.z = 0.002
 slash.rotation.z = Math.PI * 0.25
-slash.visible = false // Initially hidden
+slash.visible = false
 
 colorIndicator.add(backgroundMesh)
 colorIndicator.add(colorMesh)
@@ -53,16 +53,16 @@ export function updateColorIndicatorPosition (camera) {
 export function updateColorIndicatorColor (color) {
   if (!colorIndicator || !colorIndicator.children[1]) return
 
-  const swatch = colorIndicator.getObjectByName('slash')
+  const slash = colorIndicator.getObjectByName('slash')
 
   if (color === '#ffffff') {
-    if (swatch) {
-      swatch.visible = true
+    if (slash) {
+      slash.visible = true
       colorIndicator.children[1].material.color.set(color)
       return
     }
   }
 
-  swatch.visible = false
+  slash.visible = false
   colorIndicator.children[1].material.color.set(color)
 }
