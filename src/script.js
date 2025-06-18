@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { pass } from 'three/tsl'
+import { pass, mrt, vec4, emissive, output } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker, colors } from './colorPicker.js'
 import {
@@ -55,17 +55,13 @@ function init () {
   // Post Processing
   postProcessing = new PostProcessing(renderer)
   const scenePass = pass(scene, camera)
-  const scenePassColor = scenePass.getTextureNode()
 
-  let combinedPass = scenePassColor
-  combinedPass = bloom(combinedPass, 10, 0.1, 0)
+  scenePass.setMRT(mrt({ output, emissive }))
 
-  postProcessing.outputNode = combinedPass
-
-  // draw image
-  // for (const flower of flowers) {
-  //   updateColor(flower.index, new THREE.Color(flower.color))
-  // }
+  const colorBuffer = scenePass.getTextureNode('output')
+  const emissiveBuffer = scenePass.getTextureNode('emissive')
+  const bloomPass = bloom(emissiveBuffer, 1, 0.1, 0)
+  postProcessing.outputNode = colorBuffer.add(bloomPass)
 
   LightBrightMesh.scale.set(aspect, 1, 1)
   updateColorIndicatorPosition(camera)
