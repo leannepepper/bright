@@ -91,6 +91,7 @@ const centerMaterial = new THREE.MeshBasicMaterial({
   color: 0xffffff,
   side: THREE.DoubleSide
 })
+
 const centerCircle = new THREE.Mesh(centerGeometry, centerMaterial)
 centerCircle.position.set(0, 0, 0.001)
 centerCircle.userData.color = '#ffffff'

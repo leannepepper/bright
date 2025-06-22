@@ -16,6 +16,10 @@ import {
   circleSize,
   updateColorIndicatorColor
 } from './colorIndicator.js'
+import {
+  templatePicker,
+  updateTemplatePickerPosition
+} from './templatePicker.js'
 import { bloom } from 'three/tsl/bloom'
 
 let isDragging = false
@@ -51,6 +55,7 @@ function init () {
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
   scene.add(colorIndicator)
+  scene.add(templatePicker)
 
   postProcessing = new PostProcessing(renderer)
 
@@ -75,6 +80,7 @@ function init () {
 
   LightBrightMesh.scale.set(aspect, 1, 1)
   updateColorIndicatorPosition(camera)
+  updateTemplatePickerPosition(camera)
 }
 
 function onWindowResize () {
@@ -90,6 +96,7 @@ function onWindowResize () {
   // rebuild the data texture with new width
   updateSelectedTexture(aspect)
   updateColorIndicatorPosition(camera)
+  updateTemplatePickerPosition(camera)
 }
 
 function render () {
