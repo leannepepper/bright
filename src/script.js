@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { pass, mrt, emissive, output } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
-import { colorPicker, colors } from './colorPicker.js'
+import { colorPicker } from './colorPicker.js'
 import {
+  colors,
   gridColsUniform,
-  flowers,
   GRID_SIZE,
   selectedTexture,
   updateSelectedTexture
@@ -26,6 +26,7 @@ let isDragging = false
 let holdingRemove = false
 let holdingCommand = false
 let allSelected = []
+let hoveredSwatch = null
 
 let camera, scene, renderer
 let postProcessing
@@ -103,7 +104,6 @@ function render () {
   postProcessing.render()
 }
 
-// Toggle light via raycasting
 function toggleLight () {
   raycaster.setFromCamera(pointer, camera)
   const intersects = raycaster.intersectObjects([LightBrightMesh])
@@ -126,7 +126,6 @@ function toggleLight () {
   }
 }
 
-// update color
 function updateColor (index, color) {
   const data = selectedTexture.image.data
   const convertedColor = new THREE.Color(color)
@@ -151,7 +150,6 @@ function updateColor (index, color) {
   }
 }
 
-// Update mouse position for raycasting
 function updateMousePosition (event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
@@ -221,7 +219,7 @@ function onPointerMove (event) {
     toggleLight()
   }
 
-  hoverAndPlaceColorPicker(event)
+  hoverAndPlaceColorPicker()
 }
 
 function onPointerUp (event) {
@@ -244,9 +242,7 @@ function onKeyUp (event) {
   hideColorPicker()
 }
 
-let hoveredSwatch = null
-
-function hoverAndPlaceColorPicker (event) {
+function hoverAndPlaceColorPicker () {
   raycaster.setFromCamera(pointer, camera)
 
   const colorP = scene.getObjectByName('colorPicker')

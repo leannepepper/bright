@@ -1,13 +1,5 @@
 import * as THREE from 'three'
-
-export const colors = {
-  orange: '#ff3901',
-  cyan: '#0fffff',
-  green: '#5cb000',
-  pink: '#ff8a85',
-  yellow: '#fefc2e',
-  red: '#ff9200'
-}
+import { colors } from './constants.js'
 
 export const colorPicker = new THREE.Group()
 colorPicker.name = 'colorPicker'
