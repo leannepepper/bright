@@ -166,56 +166,6 @@ function changeSelectColor () {
   }
 }
 
-function onPointerDown (event) {
-  event.preventDefault()
-  isDragging = true
-  updateMousePosition(event)
-  raycaster.setFromCamera(pointer, camera)
-
-  const colorP = scene.getObjectByName('colorPicker')
-  const hitIndicator = raycaster.intersectObject(colorIndicator, true)
-
-  if (hitIndicator.length > 0) {
-    const margin = 0.3
-    const worldX = camera.right - circleSize - margin
-    const worldY = camera.bottom + circleSize + margin
-    const ndc = new THREE.Vector2(worldX / camera.right, worldY)
-
-    showColorPickerAt(ndc)
-
-    return
-  }
-
-  if (colorP.visible) {
-    const hitPicker = raycaster.intersectObject(colorP, true)
-    if (hitPicker.length > 0) {
-      changeSelectColor()
-      return
-    }
-
-    hideColorPicker()
-    return
-  }
-
-  changeSelectColor()
-}
-
-function onPointerMove (event) {
-  event.preventDefault()
-  updateMousePosition(event)
-
-  if (isDragging) {
-    toggleLight()
-  }
-
-  hoverAndPlaceColorPicker()
-}
-
-function onPointerUp (event) {
-  event.preventDefault()
-  isDragging = false
-}
-
 function hoverAndPlaceColorPicker () {
   raycaster.setFromCamera(pointer, camera)
 
@@ -254,6 +204,52 @@ function hoverAndPlaceColorPicker () {
   }
 }
 
+/**
+ * Event Handlers
+ */
+
+function onPointerDown (event) {
+  event.preventDefault()
+  isDragging = true
+  updateMousePosition(event)
+  raycaster.setFromCamera(pointer, camera)
+
+  const pickerVisible = colorPicker.visible
+
+  if (raycastFirstHit([colorIndicator])) {
+    showColorPickerAt(getColorPickerPosition())
+    return
+  }
+
+  if (pickerVisible && raycastFirstHit([colorPicker])) {
+    changeSelectColor()
+    return
+  }
+
+  if (pickerVisible) {
+    hideColorPicker()
+    return
+  }
+
+  changeSelectColor()
+}
+
+function onPointerMove (event) {
+  event.preventDefault()
+  updateMousePosition(event)
+
+  if (isDragging) {
+    toggleLight()
+  }
+
+  hoverAndPlaceColorPicker()
+}
+
+function onPointerUp (event) {
+  event.preventDefault()
+  isDragging = false
+}
+
 function onKeyDown (event) {
   if (event.key === 'Meta') {
     showColorPickerAt(pointer)
@@ -263,6 +259,10 @@ function onKeyDown (event) {
 function onKeyUp () {
   hideColorPicker()
 }
+
+/**
+ * Helpers
+ */
 
 function showColorPickerAt (pointer) {
   const colorP = scene.getObjectByName('colorPicker')
@@ -279,6 +279,20 @@ function hideColorPicker () {
   if (colorP) {
     colorP.visible = false
   }
+}
+
+const raycastFirstHit = objects => {
+  const hits = raycaster.intersectObjects(objects, true)
+  return hits.length ? hits[0] : null
+}
+
+// Color Picker position when opened by the color indicator
+const getColorPickerPosition = () => {
+  const margin = 0.3
+  return new THREE.Vector2(
+    (camera.right - circleSize - margin) / camera.right,
+    camera.bottom + circleSize + margin
+  )
 }
 
 function updateMousePosition (event) {
