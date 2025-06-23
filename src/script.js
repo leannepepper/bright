@@ -23,8 +23,6 @@ import {
 import { bloom } from 'three/tsl/bloom'
 
 let isDragging = false
-let holdingRemove = false
-let holdingCommand = false
 let allSelected = []
 let hoveredSwatch = null
 
@@ -104,6 +102,31 @@ function render () {
   postProcessing.render()
 }
 
+function updateColor (index, color) {
+  const data = selectedTexture.image.data
+  const convertedColor = new THREE.Color(color)
+  const isRemove = color === '#ffffff'
+
+  data[index + 0] = convertedColor.r * 255
+  data[index + 1] = convertedColor.g * 255
+  data[index + 2] = convertedColor.b * 255
+  data[index + 3] = isRemove ? 0 : 255
+
+  selectedTexture.needsUpdate = true
+
+  if (!isRemove) {
+    const selectedHex = convertedColor.getHexString()
+
+    const selectedKey = Object.entries(colors).find(
+      ([key, value]) => value.replace('#', '') === selectedHex
+    )?.[0]
+
+    allSelected.push({ index, color: selectedKey })
+  } else if (isRemove) {
+    allSelected = allSelected.filter(({ index: i }) => i !== index)
+  }
+}
+
 function toggleLight () {
   raycaster.setFromCamera(pointer, camera)
   const intersects = raycaster.intersectObjects([LightBrightMesh])
@@ -126,35 +149,6 @@ function toggleLight () {
   }
 }
 
-function updateColor (index, color) {
-  const data = selectedTexture.image.data
-  const convertedColor = new THREE.Color(color)
-
-  data[index + 0] = convertedColor.r * 255
-  data[index + 1] = convertedColor.g * 255
-  data[index + 2] = convertedColor.b * 255
-  data[index + 3] = holdingRemove ? 0 : 255
-
-  selectedTexture.needsUpdate = true
-
-  if (!holdingRemove) {
-    const selectedHex = convertedColor.getHexString()
-
-    const selectedKey = Object.entries(colors).find(
-      ([key, value]) => value.replace('#', '') === selectedHex
-    )?.[0]
-
-    allSelected.push({ index, color: selectedKey })
-  } else if (holdingRemove) {
-    allSelected = allSelected.filter(({ index: i }) => i !== index)
-  }
-}
-
-function updateMousePosition (event) {
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-}
-
 function changeSelectColor () {
   raycaster.setFromCamera(pointer, camera)
   if (!colorPicker.visible) {
@@ -167,11 +161,6 @@ function changeSelectColor () {
     const colorName = intersects[0].object.userData.color
     if (colorName) {
       selectedColor = colorName
-      if (intersects[0].object.name === 'remove') {
-        holdingRemove = true
-      } else {
-        holdingRemove = false
-      }
       updateColorIndicatorColor(colorName)
     }
   }
@@ -227,21 +216,6 @@ function onPointerUp (event) {
   isDragging = false
 }
 
-function onKeyDown (event) {
-  event.preventDefault()
-
-  if (event.key === 'Meta') {
-    holdingCommand = true
-    showColorPickerAt(pointer)
-  }
-}
-
-function onKeyUp (event) {
-  event.preventDefault()
-  holdingCommand = false
-  hideColorPicker()
-}
-
 function hoverAndPlaceColorPicker () {
   raycaster.setFromCamera(pointer, camera)
 
@@ -280,6 +254,16 @@ function hoverAndPlaceColorPicker () {
   }
 }
 
+function onKeyDown (event) {
+  if (event.key === 'Meta') {
+    showColorPickerAt(pointer)
+  }
+}
+
+function onKeyUp () {
+  hideColorPicker()
+}
+
 function showColorPickerAt (pointer) {
   const colorP = scene.getObjectByName('colorPicker')
   const worldX = pointer.x * camera.right
@@ -295,6 +279,11 @@ function hideColorPicker () {
   if (colorP) {
     colorP.visible = false
   }
+}
+
+function updateMousePosition (event) {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
 }
 
 window.addEventListener('resize', onWindowResize)
