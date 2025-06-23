@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { colors } from './colorPicker.js'
+import { colors } from './constants.js'
 
 export const circleSize = 0.04
 const backgroundCircleSize = 0.06

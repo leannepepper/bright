@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { pass, mrt, emissive, output } from 'three/tsl'
 import { PostProcessing, WebGPURenderer } from 'three/webgpu'
-import { colorPicker, colors } from './colorPicker.js'
+import { colorPicker } from './colorPicker.js'
 import {
+  colors,
   gridColsUniform,
-  flowers,
   GRID_SIZE,
   selectedTexture,
   updateSelectedTexture
@@ -23,9 +23,8 @@ import {
 import { bloom } from 'three/tsl/bloom'
 
 let isDragging = false
-let holdingRemove = false
-let holdingCommand = false
 let allSelected = []
+let hoveredSwatch = null
 
 let camera, scene, renderer
 let postProcessing
@@ -103,7 +102,31 @@ function render () {
   postProcessing.render()
 }
 
-// Toggle light via raycasting
+function updateColor (index, color) {
+  const data = selectedTexture.image.data
+  const convertedColor = new THREE.Color(color)
+  const isRemove = color === '#ffffff'
+
+  data[index + 0] = convertedColor.r * 255
+  data[index + 1] = convertedColor.g * 255
+  data[index + 2] = convertedColor.b * 255
+  data[index + 3] = isRemove ? 0 : 255
+
+  selectedTexture.needsUpdate = true
+
+  if (!isRemove) {
+    const selectedHex = convertedColor.getHexString()
+
+    const selectedKey = Object.entries(colors).find(
+      ([key, value]) => value.replace('#', '') === selectedHex
+    )?.[0]
+
+    allSelected.push({ index, color: selectedKey })
+  } else if (isRemove) {
+    allSelected = allSelected.filter(({ index: i }) => i !== index)
+  }
+}
+
 function toggleLight () {
   raycaster.setFromCamera(pointer, camera)
   const intersects = raycaster.intersectObjects([LightBrightMesh])
@@ -126,37 +149,6 @@ function toggleLight () {
   }
 }
 
-// update color
-function updateColor (index, color) {
-  const data = selectedTexture.image.data
-  const convertedColor = new THREE.Color(color)
-
-  data[index + 0] = convertedColor.r * 255
-  data[index + 1] = convertedColor.g * 255
-  data[index + 2] = convertedColor.b * 255
-  data[index + 3] = holdingRemove ? 0 : 255
-
-  selectedTexture.needsUpdate = true
-
-  if (!holdingRemove) {
-    const selectedHex = convertedColor.getHexString()
-
-    const selectedKey = Object.entries(colors).find(
-      ([key, value]) => value.replace('#', '') === selectedHex
-    )?.[0]
-
-    allSelected.push({ index, color: selectedKey })
-  } else if (holdingRemove) {
-    allSelected = allSelected.filter(({ index: i }) => i !== index)
-  }
-}
-
-// Update mouse position for raycasting
-function updateMousePosition (event) {
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-}
-
 function changeSelectColor () {
   raycaster.setFromCamera(pointer, camera)
   if (!colorPicker.visible) {
@@ -169,84 +161,12 @@ function changeSelectColor () {
     const colorName = intersects[0].object.userData.color
     if (colorName) {
       selectedColor = colorName
-      if (intersects[0].object.name === 'remove') {
-        holdingRemove = true
-      } else {
-        holdingRemove = false
-      }
       updateColorIndicatorColor(colorName)
     }
   }
 }
 
-function onPointerDown (event) {
-  event.preventDefault()
-  isDragging = true
-  updateMousePosition(event)
-  raycaster.setFromCamera(pointer, camera)
-
-  const colorP = scene.getObjectByName('colorPicker')
-  const hitIndicator = raycaster.intersectObject(colorIndicator, true)
-
-  if (hitIndicator.length > 0) {
-    const margin = 0.3
-    const worldX = camera.right - circleSize - margin
-    const worldY = camera.bottom + circleSize + margin
-    const ndc = new THREE.Vector2(worldX / camera.right, worldY)
-
-    showColorPickerAt(ndc)
-
-    return
-  }
-
-  if (colorP.visible) {
-    const hitPicker = raycaster.intersectObject(colorP, true)
-    if (hitPicker.length > 0) {
-      changeSelectColor()
-      return
-    }
-
-    hideColorPicker()
-    return
-  }
-
-  changeSelectColor()
-}
-
-function onPointerMove (event) {
-  event.preventDefault()
-  updateMousePosition(event)
-
-  if (isDragging) {
-    toggleLight()
-  }
-
-  hoverAndPlaceColorPicker(event)
-}
-
-function onPointerUp (event) {
-  event.preventDefault()
-  isDragging = false
-}
-
-function onKeyDown (event) {
-  event.preventDefault()
-
-  if (event.key === 'Meta') {
-    holdingCommand = true
-    showColorPickerAt(pointer)
-  }
-}
-
-function onKeyUp (event) {
-  event.preventDefault()
-  holdingCommand = false
-  hideColorPicker()
-}
-
-let hoveredSwatch = null
-
-function hoverAndPlaceColorPicker (event) {
+function hoverAndPlaceColorPicker () {
   raycaster.setFromCamera(pointer, camera)
 
   const colorP = scene.getObjectByName('colorPicker')
@@ -284,6 +204,66 @@ function hoverAndPlaceColorPicker (event) {
   }
 }
 
+/**
+ * Event Handlers
+ */
+
+function onPointerDown (event) {
+  event.preventDefault()
+  isDragging = true
+  updateMousePosition(event)
+  raycaster.setFromCamera(pointer, camera)
+
+  const pickerVisible = colorPicker.visible
+
+  if (raycastFirstHit([colorIndicator])) {
+    showColorPickerAt(getColorPickerPosition())
+    return
+  }
+
+  if (pickerVisible && raycastFirstHit([colorPicker])) {
+    changeSelectColor()
+    return
+  }
+
+  if (pickerVisible) {
+    hideColorPicker()
+    return
+  }
+
+  changeSelectColor()
+}
+
+function onPointerMove (event) {
+  event.preventDefault()
+  updateMousePosition(event)
+
+  if (isDragging) {
+    toggleLight()
+  }
+
+  hoverAndPlaceColorPicker()
+}
+
+function onPointerUp (event) {
+  event.preventDefault()
+  isDragging = false
+}
+
+function onKeyDown (event) {
+  if (event.key === 'Meta') {
+    showColorPickerAt(pointer)
+  }
+}
+
+function onKeyUp () {
+  hideColorPicker()
+}
+
+/**
+ * Helpers
+ */
+
 function showColorPickerAt (pointer) {
   const colorP = scene.getObjectByName('colorPicker')
   const worldX = pointer.x * camera.right
@@ -299,6 +279,25 @@ function hideColorPicker () {
   if (colorP) {
     colorP.visible = false
   }
+}
+
+const raycastFirstHit = objects => {
+  const hits = raycaster.intersectObjects(objects, true)
+  return hits.length ? hits[0] : null
+}
+
+// Color Picker position when opened by the color indicator
+const getColorPickerPosition = () => {
+  const margin = 0.3
+  return new THREE.Vector2(
+    (camera.right - circleSize - margin) / camera.right,
+    camera.bottom + circleSize + margin
+  )
+}
+
+function updateMousePosition (event) {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
 }
 
 window.addEventListener('resize', onWindowResize)
