@@ -1,7 +1,7 @@
 {
-  "name": "portfolio",
+  "name": "bright",
   "version": "1.0.0",
-  "description": "portfolio",
+  "description": "A little Light Bright game to learn TSL",
   "private": true,
   "author": "Leanne Werner",
   "license": "MIT",

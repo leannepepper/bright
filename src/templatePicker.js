@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { templateNames } from './constants.js'
 
 export const templatePicker = new THREE.Group()
 templatePicker.name = 'TemplatePicker'
@@ -43,7 +44,6 @@ function createShape (bgWidth, bgHeight) {
 
 function createTemplateButton (name, colorFn) {
   const group = new THREE.Group()
-  group.name = name
 
   const bgGeom = createShape(0.4, 0.4)
   const bgMat = new THREE.MeshBasicMaterial({
@@ -52,6 +52,7 @@ function createTemplateButton (name, colorFn) {
     opacity: 0.8
   })
   const bgMesh = new THREE.Mesh(bgGeom, bgMat)
+  bgMesh.name = name
   group.add(bgMesh)
 
   // 2. Sphere grid pattern
@@ -91,8 +92,11 @@ const flowerColorFn = (q, r) => {
   return 0x3e3e3e
 }
 
-const emptyTemplateBtn = createTemplateButton('EmptyTemplate', emptyColorFn)
-const flowerTemplateBtn = createTemplateButton('FlowerTemplate', flowerColorFn)
+const emptyTemplateBtn = createTemplateButton(templateNames.empty, emptyColorFn)
+const flowerTemplateBtn = createTemplateButton(
+  templateNames.flower,
+  flowerColorFn
+)
 
 flowerTemplateBtn.position.y = -0.5
 

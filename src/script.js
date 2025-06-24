@@ -4,6 +4,7 @@ import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker } from './colorPicker.js'
 import {
   colors,
+  templateNames,
   gridColsUniform,
   GRID_SIZE,
   selectedTexture,
@@ -204,6 +205,23 @@ function hoverAndPlaceColorPicker () {
   }
 }
 
+function maybeSelectTemplateOption () {
+  raycaster.setFromCamera(pointer, camera)
+  const intersects = raycaster.intersectObjects([templatePicker], true)
+  if (intersects.length === 0) return
+
+  const isEmptyTemplateSelected = intersects.find(
+    obj => obj.object.name === templateNames.empty
+  )
+  const isFlowerTemplateSelected = intersects.find(
+    obj => obj.object.name === templateNames.flower
+  )
+  if (isEmptyTemplateSelected) {
+    updateSelectedTexture(window.innerWidth / window.innerHeight)
+    return
+  }
+}
+
 /**
  * Event Handlers
  */
@@ -218,6 +236,11 @@ function onPointerDown (event) {
 
   if (raycastFirstHit([colorIndicator])) {
     showColorPickerAt(getColorPickerPosition())
+    return
+  }
+
+  if (raycastFirstHit([templatePicker])) {
+    maybeSelectTemplateOption()
     return
   }
 
