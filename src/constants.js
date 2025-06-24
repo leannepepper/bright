@@ -11,6 +11,10 @@ export const colors = {
   yellow: '#fefc2e',
   red: '#ff9200'
 }
+export const templateNames = {
+  empty: 'empty',
+  flower: 'flower'
+}
 
 export function buildDataTexture (aspect) {
   const cols = Math.ceil(GRID_SIZE * aspect)
@@ -29,9 +33,6 @@ export let selectedTexture = buildDataTexture(
 
 export function updateSelectedTexture (aspect) {
   const cols = Math.ceil(GRID_SIZE * aspect)
-  if (selectedTexture.image.width === cols) {
-    return
-  }
 
   gridColsUniform.value = cols
   selectedTexture.image.data = new Uint8Array(cols * GRID_SIZE * 4)
