@@ -4,18 +4,19 @@ import { PostProcessing, WebGPURenderer } from 'three/webgpu'
 import { colorPicker } from './colorPicker.js'
 import {
   colors,
-  templateNames,
+  flowerTemplateData,
   gridColsUniform,
   GRID_SIZE,
   selectedTexture,
+  templateNames,
   updateSelectedTexture
 } from './constants.js'
 import { LightBrightMesh } from './lightBright.js'
 import {
   colorIndicator,
-  updateColorIndicatorPosition,
   circleSize,
-  updateColorIndicatorColor
+  updateColorIndicatorColor,
+  updateColorIndicatorPosition
 } from './colorIndicator.js'
 import {
   templatePicker,
@@ -24,7 +25,7 @@ import {
 import { bloom } from 'three/tsl/bloom'
 
 let isDragging = false
-let allSelected = []
+let allSelected = new Map()
 let hoveredSwatch = null
 
 let camera, scene, renderer
@@ -103,7 +104,7 @@ function render () {
   postProcessing.render()
 }
 
-function updateColor (index, color) {
+function updateColor (index, color, row, col) {
   const data = selectedTexture.image.data
   const convertedColor = new THREE.Color(color)
   const isRemove = color === '#ffffff'
@@ -122,10 +123,15 @@ function updateColor (index, color) {
       ([key, value]) => value.replace('#', '') === selectedHex
     )?.[0]
 
-    allSelected.push({ index, color: selectedKey })
+    allSelected.set(index, { row, col })
   } else if (isRemove) {
-    allSelected = allSelected.filter(({ index: i }) => i !== index)
+    allSelected.delete(index)
   }
+  const coordList = [...allSelected.values()]
+    .map(({ row, col }) => `[${row},${col}]`)
+    .join(', ')
+
+  console.log({ coordList })
 }
 
 function toggleLight () {
@@ -146,7 +152,7 @@ function toggleLight () {
 
     const index = 4 * (col + row * cols)
 
-    updateColor(index, selectedColor)
+    updateColor(index, selectedColor, row, col)
   }
 }
 
@@ -216,8 +222,14 @@ function maybeSelectTemplateOption () {
   const isFlowerTemplateSelected = intersects.find(
     obj => obj.object.name === templateNames.flower
   )
+
   if (isEmptyTemplateSelected) {
     updateSelectedTexture(window.innerWidth / window.innerHeight)
+    return
+  }
+
+  if (isFlowerTemplateSelected) {
+    applyTemplate(flowerTemplateData, '#656565')
     return
   }
 }
@@ -316,6 +328,16 @@ const getColorPickerPosition = () => {
     (camera.right - circleSize - margin) / camera.right,
     camera.bottom + circleSize + margin
   )
+}
+
+function applyTemplate (templateCoords, templateColor) {
+  updateSelectedTexture(window.innerWidth / window.innerHeight)
+  const cols = gridColsUniform.value
+
+  templateCoords.forEach(([row, col]) => {
+    const index = 4 * (col + row * cols)
+    updateColor(index, templateColor, row, col)
+  })
 }
 
 function updateMousePosition (event) {
