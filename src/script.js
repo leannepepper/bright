@@ -27,6 +27,7 @@ import { bloom } from 'three/tsl/bloom'
 let isDragging = false
 let allSelected = new Map()
 let hoveredSwatch = null
+let isMobile = window.innerWidth < 1000
 
 let camera, scene, renderer
 let postProcessing
@@ -98,6 +99,14 @@ function onWindowResize () {
   updateSelectedTexture(aspect)
   updateColorIndicatorPosition(camera)
   updateTemplatePickerPosition(camera)
+
+  isMobile = window.innerWidth < 1000
+
+  if (isMobile) {
+    templatePicker.visible = false
+  } else if (!isMobile && !templatePicker.visible) {
+    templatePicker.visible = true
+  }
 }
 
 function render () {
@@ -117,12 +126,6 @@ function updateColor (index, color, row, col) {
   selectedTexture.needsUpdate = true
 
   if (!isRemove) {
-    const selectedHex = convertedColor.getHexString()
-
-    const selectedKey = Object.entries(colors).find(
-      ([key, value]) => value.replace('#', '') === selectedHex
-    )?.[0]
-
     allSelected.set(index, { row, col })
   } else if (isRemove) {
     allSelected.delete(index)
@@ -130,8 +133,6 @@ function updateColor (index, color, row, col) {
   const coordList = [...allSelected.values()]
     .map(({ row, col }) => `[${row},${col}]`)
     .join(', ')
-
-  console.log({ coordList })
 }
 
 function toggleLight () {
@@ -176,9 +177,8 @@ function changeSelectColor () {
 function hoverAndPlaceColorPicker () {
   raycaster.setFromCamera(pointer, camera)
 
-  const colorP = scene.getObjectByName('colorPicker')
-  if (colorP.visible) {
-    const intersects = raycaster.intersectObject(colorP, true)
+  if (colorPicker.visible) {
+    const intersects = raycaster.intersectObject(colorPicker, true)
     const swatch =
       intersects?.[0] && intersects?.[0].object.name
         ? intersects[0].object
@@ -203,7 +203,6 @@ function hoverAndPlaceColorPicker () {
   }
 
   const intersects = raycaster.intersectObject(LightBrightMesh)
-  const colorPicker = scene.getObjectByName('colorPicker')
 
   if (intersects.length > 0 && colorPicker) {
     const point = intersects[0].point
@@ -300,19 +299,17 @@ function onKeyUp () {
  */
 
 function showColorPickerAt (pointer) {
-  const colorP = scene.getObjectByName('colorPicker')
   const worldX = pointer.x * camera.right
   const worldY = pointer.y
-  colorP.scale.set(2.0, 2.0, 1.0)
-  colorP.position.set(worldX, worldY, 0.1)
+  colorPicker.scale.set(2.0, 2.0, 1.0)
+  colorPicker.position.set(worldX, worldY, 0.1)
 
-  colorP.visible = true
+  colorPicker.visible = true
 }
 
 function hideColorPicker () {
-  const colorP = scene.getObjectByName('colorPicker')
-  if (colorP) {
-    colorP.visible = false
+  if (colorPicker) {
+    colorPicker.visible = false
   }
 }
 
