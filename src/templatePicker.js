@@ -55,7 +55,6 @@ function createTemplateButton (name, colorFn) {
   bgMesh.name = name
   group.add(bgMesh)
 
-  // 2. Sphere grid pattern
   const sphereRadius = 0.02
   const gap = 0.02
   const R = 2
@@ -74,6 +73,7 @@ function createTemplateButton (name, colorFn) {
       const colorHex = colorFn(q, r)
       const mat = new THREE.MeshBasicMaterial({ color: colorHex })
       const sphere = new THREE.Mesh(geom, mat)
+      sphere.name = `${name}-sphere`
 
       sphere.position.set(x, y, 0)
       group.add(sphere)

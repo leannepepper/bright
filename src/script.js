@@ -27,6 +27,7 @@ import { bloom } from 'three/tsl/bloom'
 let isDragging = false
 let allSelected = new Map()
 let hoveredSwatch = null
+let hoveredTemplate = null
 let isMobile = window.innerWidth < 1000
 
 let camera, scene, renderer
@@ -210,24 +211,71 @@ function hoverAndPlaceColorPicker () {
   }
 }
 
-function maybeSelectTemplateOption () {
+function hoverTemplates () {
   raycaster.setFromCamera(pointer, camera)
   const intersects = raycaster.intersectObjects([templatePicker], true)
-  if (intersects.length === 0) return
 
-  const isEmptyTemplateSelected = intersects.find(
+  const emptyTemplateSelected = intersects.find(
     obj => obj.object.name === templateNames.empty
   )
-  const isFlowerTemplateSelected = intersects.find(
+  const flowerTemplateSelected = intersects.find(
     obj => obj.object.name === templateNames.flower
   )
 
-  if (isEmptyTemplateSelected) {
+  if (emptyTemplateSelected) {
+    hoveredTemplate = emptyTemplateSelected
+    emptyTemplateSelected.object.scale.set(1.1, 1.1, 1.1)
+    templatePicker.traverse(child => {
+      if (child.name === 'empty-sphere') {
+        child.scale.set(1.2, 1.2, 1.2)
+      }
+    })
+    return
+  }
+
+  if (flowerTemplateSelected) {
+    hoveredTemplate = flowerTemplateSelected
+    flowerTemplateSelected.object.scale.set(1.1, 1.1, 1.1)
+
+    templatePicker.traverse(child => {
+      if (child.name === 'flower-sphere') {
+        child.scale.set(1.2, 1.2, 1.2)
+      }
+    })
+    return
+  }
+
+  if (hoveredTemplate) {
+    hoveredTemplate.object.scale.set(1, 1, 1)
+    templatePicker.traverse(child => {
+      if (child.name === 'flower-sphere' || child.name === 'empty-sphere') {
+        child.scale.set(1.0, 1.0, 1.0)
+      }
+    })
+
+    hoveredTemplate = null
+  }
+}
+
+function maybeSelectTemplateOption () {
+  raycaster.setFromCamera(pointer, camera)
+  const intersects = raycaster.intersectObjects([templatePicker], true)
+  hoveredTemplate = null
+  if (intersects.length === 0) return
+
+  const emptyTemplateSelected = intersects.find(
+    obj => obj.object.name === templateNames.empty
+  )
+  const flowerTemplateSelected = intersects.find(
+    obj => obj.object.name === templateNames.flower
+  )
+
+  if (emptyTemplateSelected) {
     updateSelectedTexture(window.innerWidth / window.innerHeight)
     return
   }
 
-  if (isFlowerTemplateSelected) {
+  if (flowerTemplateSelected) {
     applyTemplate(flowerTemplateData, '#656565')
     return
   }
@@ -277,6 +325,7 @@ function onPointerMove (event) {
   }
 
   hoverAndPlaceColorPicker()
+  hoverTemplates()
 }
 
 function onPointerUp (event) {
