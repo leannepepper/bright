@@ -225,34 +225,17 @@ function hoverTemplates () {
   if (emptyTemplateSelected) {
     hoveredTemplate = emptyTemplateSelected
     emptyTemplateSelected.object.scale.set(1.1, 1.1, 1.1)
-    templatePicker.traverse(child => {
-      if (child.name === 'empty-sphere') {
-        child.scale.set(1.2, 1.2, 1.2)
-      }
-    })
     return
   }
 
   if (flowerTemplateSelected) {
     hoveredTemplate = flowerTemplateSelected
     flowerTemplateSelected.object.scale.set(1.1, 1.1, 1.1)
-
-    templatePicker.traverse(child => {
-      if (child.name === 'flower-sphere') {
-        child.scale.set(1.2, 1.2, 1.2)
-      }
-    })
     return
   }
 
   if (hoveredTemplate) {
     hoveredTemplate.object.scale.set(1, 1, 1)
-    templatePicker.traverse(child => {
-      if (child.name === 'flower-sphere' || child.name === 'empty-sphere') {
-        child.scale.set(1.0, 1.0, 1.0)
-      }
-    })
-
     hoveredTemplate = null
   }
 }
