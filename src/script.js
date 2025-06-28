@@ -45,7 +45,7 @@ let postProcessing
 
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
-let selectedColor = colors.orange
+window.selectedColor = colors.orange
 
 init()
 
@@ -68,7 +68,7 @@ function init () {
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
   scene.add(colorIndicator)
-  scene.add(templatePicker)
+  //scene.add(templatePicker)
 
   postProcessing = new PostProcessing(renderer)
 
@@ -168,7 +168,7 @@ function toggleLight () {
 
     const index = 4 * (col + row * cols)
 
-    updateColor(index, selectedColor, row, col)
+    updateColor(index, window.selectedColor, row, col)
   }
 }
 
@@ -183,7 +183,7 @@ function changeSelectColor () {
   if (intersects.length > 0 && colorPicker?.visible) {
     const colorName = intersects[0].object.userData.color
     if (colorName) {
-      selectedColor = colorName
+      window.selectedColor = colorName
       updateColorIndicatorColor(colorName)
       hideColorPicker()
     }
