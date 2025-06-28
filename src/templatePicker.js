@@ -101,15 +101,16 @@ const flowerTemplateBtn = createTemplateButton(
 flowerTemplateBtn.position.y = -0.5
 
 const backgroundElement = new THREE.Mesh(
-  createShape(0.5, 1.0),
+  createShape(0.5, 0.5),
   new THREE.MeshBasicMaterial({
     color: '#2F2F3E'
   })
 )
 backgroundElement.position.z = 0.0
-backgroundElement.position.y = -0.25
+backgroundElement.position.y = 0.0
 
-templatePicker.add(backgroundElement, emptyTemplateBtn, flowerTemplateBtn)
+//TODO: Add flowerTemplateBtn back in
+templatePicker.add(backgroundElement, emptyTemplateBtn)
 templatePicker.scale.set(0.5, 0.5, 1.0)
 
 export function updateTemplatePickerPosition (camera) {
