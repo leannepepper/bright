@@ -38,6 +38,7 @@ let allSelected = new Map()
 let hoveredSwatch = null
 let hoveredTemplate = null
 let isMobile = window.innerWidth < 1000
+let isColorIndicatorHovered = false
 
 let camera, scene, renderer
 let postProcessing
@@ -184,6 +185,7 @@ function changeSelectColor () {
     if (colorName) {
       selectedColor = colorName
       updateColorIndicatorColor(colorName)
+      hideColorPicker()
     }
   }
 }
@@ -280,13 +282,28 @@ function maybeSelectTemplateOption () {
   }
 }
 
+function hoverColorIndicator () {
+  raycaster.setFromCamera(pointer, camera)
+  const intersects = raycaster.intersectObject(colorIndicator, true)
+
+  if (intersects.length > 0) {
+    if (!isColorIndicatorHovered) {
+      colorIndicator.scale.set(1.1, 1.1, 1.1)
+      isColorIndicatorHovered = true
+    }
+  } else if (isColorIndicatorHovered) {
+    colorIndicator.scale.set(1.0, 1.0, 1.0)
+    isColorIndicatorHovered = false
+  }
+}
+
 /**
  * Event Handlers
  */
 
 function onPointerDown (event) {
   event.preventDefault()
-  isDragging = true
+  isDragging = false
   updateMousePosition(event)
   raycaster.setFromCamera(pointer, camera)
 
@@ -312,6 +329,7 @@ function onPointerDown (event) {
     return
   }
 
+  isDragging = true
   changeSelectColor()
 }
 
@@ -323,6 +341,7 @@ function onPointerMove (event) {
     toggleLight()
   }
 
+  hoverColorIndicator()
   hoverAndPlaceColorPicker()
   hoverTemplates()
 }
