@@ -23,6 +23,15 @@ import {
   updateTemplatePickerPosition
 } from './templatePicker.js'
 import { bloom } from 'three/tsl/bloom'
+import LZString from 'lz-string'
+
+// helper aliases for cleaner call sites
+const compress = LZString.compressToEncodedURIComponent.bind(LZString)
+const decompress = LZString.decompressFromEncodedURIComponent.bind(LZString)
+
+// --- URL sync constants (declared early to avoid TDZ) ---
+const SYNC_PARAM = 's'
+let syncTimeout = null
 
 let isDragging = false
 let allSelected = new Map()
@@ -84,6 +93,9 @@ function init () {
   LightBrightMesh.scale.set(aspect, 1, 1)
   updateColorIndicatorPosition(camera)
   updateTemplatePickerPosition(camera)
+
+  // Load any saved state from URL
+  loadStateFromUrl()
 }
 
 function onWindowResize () {
@@ -114,7 +126,7 @@ function render () {
   postProcessing.render()
 }
 
-function updateColor (index, color, row, col) {
+function updateColor (index, color, row, col, skipSync = false) {
   const data = selectedTexture.image.data
   const convertedColor = new THREE.Color(color)
   const isRemove = color === '#ffffff'
@@ -127,13 +139,14 @@ function updateColor (index, color, row, col) {
   selectedTexture.needsUpdate = true
 
   if (!isRemove) {
-    allSelected.set(index, { row, col })
+    allSelected.set(index, { row, col, color })
   } else if (isRemove) {
     allSelected.delete(index)
   }
-  const coordList = [...allSelected.values()]
-    .map(({ row, col }) => `[${row},${col}]`)
-    .join(', ')
+
+  if (!skipSync) {
+    scheduleSync()
+  }
 }
 
 function toggleLight () {
@@ -254,11 +267,14 @@ function maybeSelectTemplateOption () {
   )
 
   if (emptyTemplateSelected) {
+    allSelected.clear()
     updateSelectedTexture(window.innerWidth / window.innerHeight)
+    scheduleSync()
     return
   }
 
   if (flowerTemplateSelected) {
+    allSelected.clear()
     applyTemplate(flowerTemplateData, '#656565')
     return
   }
@@ -372,6 +388,58 @@ function applyTemplate (templateCoords, templateColor) {
 function updateMousePosition (event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+}
+
+/**
+ * URL Sync Helpers
+ */
+
+function scheduleSync () {
+  if (syncTimeout) clearTimeout(syncTimeout)
+  syncTimeout = setTimeout(syncUrl, 300)
+}
+
+function syncUrl () {
+  const stateArray = [...allSelected.values()].map(({ row, col, color }) => [
+    row,
+    col,
+    color
+  ])
+
+  if (stateArray.length === 0) {
+    // Clear param if no state
+    const newUrl = `${window.location.pathname}`
+    window.history.replaceState(null, '', newUrl)
+    return
+  }
+
+  const compressed = compress(JSON.stringify(stateArray))
+  const newUrl = `${window.location.pathname}?${SYNC_PARAM}=${compressed}`
+  window.history.replaceState(null, '', newUrl)
+}
+
+function loadStateFromUrl () {
+  const params = new URLSearchParams(window.location.search)
+  const compressed = params.get(SYNC_PARAM)
+  if (!compressed) return
+
+  const jsonStr = decompress(compressed)
+  if (!jsonStr) return
+
+  try {
+    const stateArray = JSON.parse(jsonStr)
+    const aspect = window.innerWidth / window.innerHeight
+    updateSelectedTexture(aspect) // ensure fresh texture with correct dimensions
+    allSelected.clear()
+
+    stateArray.forEach(([row, col, color]) => {
+      const cols = gridColsUniform.value
+      const index = 4 * (col + row * cols)
+      updateColor(index, color, row, col, true) // skip sync while loading
+    })
+  } catch (e) {
+    console.error('Failed to parse canvas state from URL', e)
+  }
 }
 
 window.addEventListener('resize', onWindowResize)
