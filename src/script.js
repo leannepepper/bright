@@ -68,7 +68,7 @@ function init () {
   scene.add(LightBrightMesh)
   scene.add(colorPicker)
   scene.add(colorIndicator)
-  //scene.add(templatePicker)
+  scene.add(templatePicker)
 
   postProcessing = new PostProcessing(renderer)
 
@@ -115,12 +115,6 @@ function onWindowResize () {
   updateTemplatePickerPosition(camera)
 
   isMobile = window.innerWidth < 1000
-
-  if (isMobile) {
-    templatePicker.visible = false
-  } else if (!isMobile && !templatePicker.visible) {
-    templatePicker.visible = true
-  }
 }
 
 function render () {
