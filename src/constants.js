@@ -9,7 +9,8 @@ export const colors = {
   green: '#5cb000',
   pink: '#ff8a85',
   yellow: '#fefc2e',
-  red: '#ff9200'
+  red: '#ff9200',
+  offWhite: '#f5f5f5'
 }
 export const templateNames = {
   empty: 'empty',
