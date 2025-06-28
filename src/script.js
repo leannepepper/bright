@@ -139,6 +139,10 @@ function updateColor (index, color, row, col, skipSync = false) {
     allSelected.delete(index)
   }
 
+  // const coordList = [...allSelected.values()]
+  //   .map(({ row, col }) => `[${row},${col}]`)
+  //   .join(', ')
+
   if (!skipSync) {
     scheduleSync()
   }
