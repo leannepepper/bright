@@ -337,7 +337,7 @@ function onKeyDown (event) {
     return
   }
 
-  if (event.key === 'Meta') {
+  if (event.metaKey || event.ctrlKey) {
     showColorPickerAt(pointer)
   }
 }
