@@ -1,6 +1,6 @@
 # Bright
 
-[![Bright preview](https://leannepepper.github.io/bright/assets/bright.jpg)](https://leannepepper.github.io/bright/)
+[![Bright preview](https://leannepepper.github.io/bright/assets/brite.jpg)](https://leannepepper.github.io/bright/)
 
 A Three-TSL mini-app that turns your browser into a retro Lite-Brite.
 
