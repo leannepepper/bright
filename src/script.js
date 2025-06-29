@@ -25,19 +25,15 @@ import {
 import { bloom } from 'three/tsl/bloom'
 import LZString from 'lz-string'
 
-// helper aliases for cleaner call sites
 const compress = LZString.compressToEncodedURIComponent.bind(LZString)
 const decompress = LZString.decompressFromEncodedURIComponent.bind(LZString)
 
-// --- URL sync constants (declared early to avoid TDZ) ---
 const SYNC_PARAM = 's'
 let syncTimeout = null
-
 let isDragging = false
 let allSelected = new Map()
 let hoveredSwatch = null
 let hoveredTemplate = null
-let isMobile = window.innerWidth < 1000
 let isColorIndicatorHovered = false
 
 let camera, scene, renderer
@@ -100,21 +96,7 @@ function init () {
 }
 
 function onWindowResize () {
-  const aspect = window.innerWidth / window.innerHeight
-  camera.left = -aspect
-  camera.right = aspect
-  camera.updateProjectionMatrix()
-
-  renderer.setSize(window.innerWidth, window.innerHeight)
-
-  LightBrightMesh.scale.set(aspect, 1, 1)
-
-  // rebuild the data texture with new width
-  updateSelectedTexture(aspect)
-  updateColorIndicatorPosition(camera)
-  updateTemplatePickerPosition(camera)
-
-  isMobile = window.innerWidth < 1000
+  window.location.reload()
 }
 
 function render () {
@@ -385,10 +367,11 @@ const raycastFirstHit = objects => {
 
 // Color Picker position when opened by the color indicator
 const getColorPickerPosition = () => {
-  const margin = 0.3
+  const marginX = 0.35
+  const marginY = 0.25
   return new THREE.Vector2(
-    (camera.right - circleSize - margin) / camera.right,
-    camera.bottom + circleSize + margin
+    (camera.right - circleSize - marginX) / camera.right,
+    camera.bottom + circleSize + marginY
   )
 }
 
