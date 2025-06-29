@@ -407,20 +407,28 @@ function syncUrl () {
   ])
 
   if (stateArray.length === 0) {
-    // Clear param if no state
     const newUrl = `${window.location.pathname}`
     window.history.replaceState(null, '', newUrl)
     return
   }
 
   const compressed = compress(JSON.stringify(stateArray))
-  const newUrl = `${window.location.pathname}?${SYNC_PARAM}=${compressed}`
+  const newUrl = `${window.location.pathname}#${SYNC_PARAM}=${compressed}`
   window.history.replaceState(null, '', newUrl)
 }
 
+function getCompressedStateFromUrl () {
+  if (window.location.hash && window.location.hash.length > 1) {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const value = hashParams.get(SYNC_PARAM)
+    if (value) return value
+  }
+  const searchParams = new URLSearchParams(window.location.search)
+  return searchParams.get(SYNC_PARAM)
+}
+
 function loadStateFromUrl () {
-  const params = new URLSearchParams(window.location.search)
-  const compressed = params.get(SYNC_PARAM)
+  const compressed = getCompressedStateFromUrl()
   if (!compressed) return
 
   const jsonStr = decompress(compressed)
@@ -429,13 +437,13 @@ function loadStateFromUrl () {
   try {
     const stateArray = JSON.parse(jsonStr)
     const aspect = window.innerWidth / window.innerHeight
-    updateSelectedTexture(aspect) // ensure fresh texture with correct dimensions
+    updateSelectedTexture(aspect)
     allSelected.clear()
 
     stateArray.forEach(([row, col, color]) => {
       const cols = gridColsUniform.value
       const index = 4 * (col + row * cols)
-      updateColor(index, color, row, col, true) // skip sync while loading
+      updateColor(index, color, row, col, true)
     })
   } catch (e) {
     console.error('Failed to parse canvas state from URL', e)
