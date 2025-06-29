@@ -124,10 +124,6 @@ function updateColor (index, color, row, col, skipSync = false) {
   // const coordList = [...allSelected.values()]
   //   .map(({ row, col }) => `[${row},${col}]`)
   //   .join(', ')
-
-  if (!skipSync) {
-    scheduleSync()
-  }
 }
 
 function toggleLight () {
@@ -332,6 +328,15 @@ function onPointerUp (event) {
 }
 
 function onKeyDown (event) {
+  if (
+    (event.key === 's' || event.key === 'S') &&
+    (event.metaKey || event.ctrlKey)
+  ) {
+    event.preventDefault()
+    scheduleSync()
+    return
+  }
+
   if (event.key === 'Meta') {
     showColorPickerAt(pointer)
   }
